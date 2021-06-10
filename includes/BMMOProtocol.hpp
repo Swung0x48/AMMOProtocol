@@ -3,5 +3,6 @@
 
 #include "common/common.hpp"
 #include "common/message.hpp"
+#include "utils/message_reader.hpp"
 
 #endif //BMMOPROTOCOL_BMMOPROTOCOL_HPP
