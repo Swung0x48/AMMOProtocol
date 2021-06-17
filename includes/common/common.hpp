@@ -1,7 +1,7 @@
-#ifndef BMMOPROTOCOL_COMMON
-#define BMMOPROTOCOL_COMMON
+#ifndef AMMOPROTOCOL_COMMON
+#define AMMOPROTOCOL_COMMON
 
 #include <cstdint>
 #include <vector>
 
-#endif //BMMOPROTOCOL_COMMON
+#endif //AMMOPROTOCOL_COMMON

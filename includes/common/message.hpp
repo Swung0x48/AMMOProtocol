@@ -1,8 +1,8 @@
-#ifndef BMMOPROTOCOL_MESSAGE
-#define BMMOPROTOCOL_MESSAGE
+#ifndef AMMOPROTOCOL_MESSAGE
+#define AMMOPROTOCOL_MESSAGE
 #include "common.hpp"
 
-namespace bmmo::message {
+namespace ammo::message {
     template <typename T>
     struct message_header {
         uint32_t crc32 = 0u;
@@ -20,4 +20,4 @@ namespace bmmo::message {
 }
 
 
-#endif //BMMOPROTOCOL_MESSAGE
+#endif //AMMOPROTOCOL_MESSAGE

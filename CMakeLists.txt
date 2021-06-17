@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(BMMOProtocol)
+project(AMMOProtocol)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -24,7 +24,7 @@ FetchContent_MakeAvailable(googletest)
 
 include_directories(submodules/crc32)
 include_directories(includes/common)
-add_executable(BMMOProtocol main.cpp includes/BMMOProtocol.hpp submodules/crc32/Crc32.cpp submodules/crc32/Crc32.h)
+add_executable(AMMOProtocol main.cpp includes/AMMOProtocol.hpp submodules/crc32/Crc32.cpp submodules/crc32/Crc32.h)
 
 enable_testing()
 

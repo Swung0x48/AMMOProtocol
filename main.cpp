@@ -1,5 +1,5 @@
 #include <iostream>
-#include "includes/BMMOProtocol.hpp"
+#include "includes/AMMOProtocol.hpp"
 #include <Crc32.h>
 #define CRC32_TEST_BITWISE
 #define CRC32_TEST_HALFBYTE
