@@ -3,7 +3,6 @@
 
 #include "common/common.hpp"
 #include "common/packet.hpp"
-#include "common/entity.hpp"
-#include "entities/entities.hpp"
+#include "entity/entity_all.hpp"
 
 #endif //AMMOPROTOCOL_BMMOPROTOCOL_HPP

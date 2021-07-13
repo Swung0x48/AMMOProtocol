@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include "common.hpp"
 
 TEST(SanityCheck, BasicAssertions) {
     // Expect two strings not to be equal.

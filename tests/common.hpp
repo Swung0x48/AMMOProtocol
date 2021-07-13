@@ -1,0 +1,8 @@
+#ifndef AMMOPROTOCOL_TEST_COMMON_HPP
+#define AMMOPROTOCOL_TEST_COMMON_HPP
+
+enum PacketType: uint32_t {
+    PacketA
+};
+
+#endif //AMMOPROTOCOL_TEST_COMMON_HPP

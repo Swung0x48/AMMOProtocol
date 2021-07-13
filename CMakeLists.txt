@@ -32,5 +32,13 @@ include_directories(tests)
 add_executable(sanity_check tests/sanity_check.cpp)
 target_link_libraries(sanity_check gtest_main)
 
+add_executable(packet_rw tests/packet_rw.cpp submodules/crc32/Crc32.cpp)
+target_link_libraries(packet_rw gtest_main)
+
+add_executable(entity_serialization tests/entity_serialization.cpp submodules/crc32/Crc32.cpp)
+target_link_libraries(entity_serialization gtest_main)
+
 include(GoogleTest)
-gtest_discover_tests(sanity_check)
+add_test(NAME sanity_check COMMAND sanity_check)
+add_test(NAME packet_rw COMMAND packet_rw)
+add_test(NAME entity_serialization COMMAND entity_serialization)
