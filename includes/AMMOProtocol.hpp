@@ -2,7 +2,8 @@
 #define AMMOPROTOCOL_BMMOPROTOCOL_HPP
 
 #include "common/common.hpp"
-#include "common/message.hpp"
-#include "utils/message_reader.hpp"
+#include "common/packet.hpp"
+#include "common/entity.hpp"
+#include "entities/entities.hpp"
 
 #endif //AMMOPROTOCOL_BMMOPROTOCOL_HPP

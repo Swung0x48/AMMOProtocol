@@ -3,5 +3,6 @@
 
 #include <cstdint>
 #include <vector>
+#include <Crc32.h>
 
 #endif //AMMOPROTOCOL_COMMON
