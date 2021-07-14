@@ -6,9 +6,9 @@
 TEST(PacketReadWrite, BasicAssertions) {
     ammo::common::packet<PacketType> packet;
 
-    unsigned int random[10];
     auto now = std::chrono::high_resolution_clock::now();
     std::default_random_engine e(now.time_since_epoch().count());
+    unsigned int random[10000];
     for (unsigned int& i: random) {
         i = e();
     }
@@ -18,10 +18,10 @@ TEST(PacketReadWrite, BasicAssertions) {
     }
     packet.pack();
 
-    EXPECT_TRUE(packet.unpack()) << "Failed on packet unpack.";
+    ASSERT_TRUE(packet.unpack()) << "Failed on packet unpack.";
     for (unsigned int & i: random) {
         int temp;
         packet >> temp;
-        EXPECT_EQ(temp, i) << "Item #" << i << " is not equal to expected.";
+        ASSERT_EQ(temp, i) << "Item #" << i << " is not equal to expected.";
     }
 }

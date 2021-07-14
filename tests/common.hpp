@@ -2,6 +2,7 @@
 #define AMMOPROTOCOL_TEST_COMMON_HPP
 
 enum PacketType: uint32_t {
+    Packet_Fragment = 0,
     PacketA
 };
 

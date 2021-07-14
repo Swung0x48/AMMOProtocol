@@ -16,8 +16,12 @@ namespace ammo::common {
     template <typename T>
     struct packet {
     public:
+        uint64_t magical_prefix = 1626227971404604; // Not sent
         message_header<T> header {};
         std::vector<uint8_t> body;
+
+        // Below members are not sent
+        uint32_t end_of_packet = 1;
         size_t write_position = 0;
         size_t read_position = 0;
         bool packed = false;
@@ -68,12 +72,19 @@ namespace ammo::common {
 
         void pack() {
             header.message_size = body.size();
-            header.crc32 = crc32_fast(body.data(), header.message_size);
+            header.crc32 = crc32_fast(&magical_prefix, sizeof(magical_prefix));
+            header.crc32 = crc32_fast(body.data(), header.message_size, header.crc32);
+            write(&end_of_packet, sizeof(end_of_packet));
             packed = true;
         }
 
         bool unpack() {
-            if (!packed || crc32_fast(body.data(), header.message_size) != header.crc32)
+            auto actual_crc32 = crc32_fast(&magical_prefix, sizeof(magical_prefix));
+            actual_crc32 = crc32_fast(body.data(), header.message_size, actual_crc32);
+            if (!packed || actual_crc32 != header.crc32)
+                return false;
+            // Check if has a valid end_of_packet
+            if (*((typeof(end_of_packet)*)(body.data() + body.size() - sizeof(end_of_packet))) != end_of_packet)
                 return false;
 
             packed = false;

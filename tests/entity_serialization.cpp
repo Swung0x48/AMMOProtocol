@@ -12,12 +12,12 @@ TEST(Vec3Serialization, BasicAssertions) {
     expected.serialize(packet);
     packet.pack();
 
-    EXPECT_TRUE(packet.unpack()) << "Failed on packet unpack.";
+    ASSERT_TRUE(packet.unpack()) << "Failed on packet unpack.";
     ammo::entity::vec3<PacketType> actual;
     actual.deserialize(packet);
-    EXPECT_EQ(expected.x, actual.x);
-    EXPECT_EQ(expected.y, actual.y);
-    EXPECT_EQ(expected.z, actual.z);
+    ASSERT_EQ(expected.x, actual.x);
+    ASSERT_EQ(expected.y, actual.y);
+    ASSERT_EQ(expected.z, actual.z);
 }
 
 TEST(QuaternionSerialization, BasicAssertions) {
@@ -31,13 +31,13 @@ TEST(QuaternionSerialization, BasicAssertions) {
     expected.serialize(packet);
     packet.pack();
 
-    EXPECT_TRUE(packet.unpack()) << "Failed on packet unpack.";
+    ASSERT_TRUE(packet.unpack()) << "Failed on packet unpack.";
     ammo::entity::quaternion<PacketType> actual;
     actual.deserialize(packet);
-    EXPECT_EQ(expected.x, actual.x);
-    EXPECT_EQ(expected.y, actual.y);
-    EXPECT_EQ(expected.z, actual.z);
-    EXPECT_EQ(expected.w, actual.w);
+    ASSERT_EQ(expected.x, actual.x);
+    ASSERT_EQ(expected.y, actual.y);
+    ASSERT_EQ(expected.z, actual.z);
+    ASSERT_EQ(expected.w, actual.w);
 }
 
 TEST(MixedSerialization, BasicAssertions) {
@@ -56,16 +56,16 @@ TEST(MixedSerialization, BasicAssertions) {
     expected_quaternion.serialize(packet);
     packet.pack();
 
-    EXPECT_TRUE(packet.unpack()) << "Failed on packet unpack.";
+    ASSERT_TRUE(packet.unpack()) << "Failed on packet unpack.";
     ammo::entity::vec3<PacketType> actual_vec3;
     ammo::entity::quaternion<PacketType> actual_quaternion;
     actual_vec3.deserialize(packet);
     actual_quaternion.deserialize(packet);
-    EXPECT_EQ(expected_vec3.x, actual_vec3.x);
-    EXPECT_EQ(expected_vec3.y, actual_vec3.y);
-    EXPECT_EQ(expected_vec3.z, actual_vec3.z);
-    EXPECT_EQ(expected_quaternion.x, actual_quaternion.x);
-    EXPECT_EQ(expected_quaternion.y, actual_quaternion.y);
-    EXPECT_EQ(expected_quaternion.z, actual_quaternion.z);
-    EXPECT_EQ(expected_quaternion.w, actual_quaternion.w);
+    ASSERT_EQ(expected_vec3.x, actual_vec3.x);
+    ASSERT_EQ(expected_vec3.y, actual_vec3.y);
+    ASSERT_EQ(expected_vec3.z, actual_vec3.z);
+    ASSERT_EQ(expected_quaternion.x, actual_quaternion.x);
+    ASSERT_EQ(expected_quaternion.y, actual_quaternion.y);
+    ASSERT_EQ(expected_quaternion.z, actual_quaternion.z);
+    ASSERT_EQ(expected_quaternion.w, actual_quaternion.w);
 }

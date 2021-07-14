@@ -3,7 +3,7 @@
 
 TEST(SanityCheck, BasicAssertions) {
     // Expect two strings not to be equal.
-    EXPECT_STRNE("Hello", "World");
+    ASSERT_STRNE("Hello", "World");
     // Expect equality.
-    EXPECT_EQ(7 * 6, 42);
+    ASSERT_EQ(7 * 6, 42);
 }
