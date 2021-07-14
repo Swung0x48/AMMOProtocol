@@ -29,16 +29,20 @@ add_executable(AMMOProtocol main.cpp includes/AMMOProtocol.hpp submodules/crc32/
 enable_testing()
 
 include_directories(tests)
-add_executable(sanity_check tests/sanity_check.cpp)
-target_link_libraries(sanity_check gtest_main)
+add_executable(test_sanity_check tests/test_sanity_check.cpp)
+target_link_libraries(test_sanity_check gtest_main)
 
-add_executable(packet_rw tests/packet_rw.cpp submodules/crc32/Crc32.cpp)
-target_link_libraries(packet_rw gtest_main)
+add_executable(test_packet_rw tests/test_packet_rw.cpp submodules/crc32/Crc32.cpp)
+target_link_libraries(test_packet_rw gtest_main)
 
-add_executable(entity_serialization tests/entity_serialization.cpp submodules/crc32/Crc32.cpp)
-target_link_libraries(entity_serialization gtest_main)
+add_executable(test_entity_serialization tests/test_entity_serialization.cpp submodules/crc32/Crc32.cpp)
+target_link_libraries(test_entity_serialization gtest_main)
+
+add_executable(test_modulo_queue tests/test_modulo_queue.cpp)
+target_link_libraries(test_modulo_queue gtest_main)
 
 include(GoogleTest)
-add_test(NAME sanity_check COMMAND sanity_check)
-add_test(NAME packet_rw COMMAND packet_rw)
-add_test(NAME entity_serialization COMMAND entity_serialization)
+add_test(NAME test_sanity_check COMMAND test_sanity_check)
+add_test(NAME test_packet_rw COMMAND test_packet_rw)
+add_test(NAME test_entity_serialization COMMAND test_entity_serialization)
+add_test(NAME test_modulo_queue COMMAND test_modulo_queue)
