@@ -32,4 +32,9 @@ TEST(PacketReadWrite, BasicAssertions) {
 
     ammo::common::message<PacketType> reconstructed_message(data.data(), data.size());
     ASSERT_TRUE(reconstructed_message.unpack_and_verify()) << "Failed on message unpack_and_verify.";
+    for (unsigned int & i: random) {
+        int temp;
+        reconstructed_message >> temp;
+        ASSERT_EQ(temp, i) << "Item #" << i << " is not equal to expected.";
+    }
 }
