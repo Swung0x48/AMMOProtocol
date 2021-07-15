@@ -3,7 +3,7 @@
 #include "common.hpp"
 
 TEST(Vec3Serialization, BasicAssertions) {
-    ammo::common::packet<PacketType> packet;
+    ammo::common::message<PacketType> packet;
 
     ammo::entity::vec3<PacketType> expected;
     expected.x = 1.0f;
@@ -12,7 +12,7 @@ TEST(Vec3Serialization, BasicAssertions) {
     expected.serialize(packet);
     packet.pack();
 
-    ASSERT_TRUE(packet.unpack()) << "Failed on packet unpack.";
+    ASSERT_TRUE(packet.unpack_and_verify()) << "Failed on packet unpack_and_verify.";
     ammo::entity::vec3<PacketType> actual;
     actual.deserialize(packet);
     ASSERT_EQ(expected.x, actual.x);
@@ -21,7 +21,7 @@ TEST(Vec3Serialization, BasicAssertions) {
 }
 
 TEST(QuaternionSerialization, BasicAssertions) {
-    ammo::common::packet<PacketType> packet;
+    ammo::common::message<PacketType> packet;
 
     ammo::entity::quaternion<PacketType> expected;
     expected.x = 1.0f;
@@ -31,7 +31,7 @@ TEST(QuaternionSerialization, BasicAssertions) {
     expected.serialize(packet);
     packet.pack();
 
-    ASSERT_TRUE(packet.unpack()) << "Failed on packet unpack.";
+    ASSERT_TRUE(packet.unpack_and_verify()) << "Failed on packet unpack_and_verify.";
     ammo::entity::quaternion<PacketType> actual;
     actual.deserialize(packet);
     ASSERT_EQ(expected.x, actual.x);
@@ -41,7 +41,7 @@ TEST(QuaternionSerialization, BasicAssertions) {
 }
 
 TEST(MixedSerialization, BasicAssertions) {
-    ammo::common::packet<PacketType> packet;
+    ammo::common::message<PacketType> packet;
 
     ammo::entity::vec3<PacketType> expected_vec3;
     expected_vec3.x = 1.0f;
@@ -56,7 +56,7 @@ TEST(MixedSerialization, BasicAssertions) {
     expected_quaternion.serialize(packet);
     packet.pack();
 
-    ASSERT_TRUE(packet.unpack()) << "Failed on packet unpack.";
+    ASSERT_TRUE(packet.unpack_and_verify()) << "Failed on packet unpack_and_verify.";
     ammo::entity::vec3<PacketType> actual_vec3;
     ammo::entity::quaternion<PacketType> actual_quaternion;
     actual_vec3.deserialize(packet);

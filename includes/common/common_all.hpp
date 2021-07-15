@@ -1,0 +1,7 @@
+#ifndef AMMOPROTOCOL_COMMON_ALL_HPP
+#define AMMOPROTOCOL_COMMON_ALL_HPP
+
+#include "message.hpp"
+const size_t MAX_PACKET_SIZE = 1536;
+
+#endif //AMMOPROTOCOL_COMMON_ALL_HPP

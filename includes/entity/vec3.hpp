@@ -8,10 +8,10 @@ namespace ammo::entity {
         float y = 0.0f;
         float z = 0.0f;
     public:
-        void serialize(ammo::common::packet<T>& packet) override {
+        void serialize(ammo::common::message<T>& packet) override {
             packet << x << y << z;
         }
-        void deserialize(ammo::common::packet<T>& packet) override {
+        void deserialize(ammo::common::message<T>& packet) override {
             packet >> x >> y >> z;
         }
     };

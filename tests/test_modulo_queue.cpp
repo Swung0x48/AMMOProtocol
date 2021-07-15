@@ -2,7 +2,7 @@
 #include "../AMMOProtocol.hpp"
 
 TEST(ModuloQueue, BasicAssertions) {
-    constexpr size_t size = 20;
+    constexpr size_t size = 100;
     ammo::structure::modulo_queue<int, size> queue;
     for (auto i: queue) {
         EXPECT_FALSE(i);

@@ -14,7 +14,7 @@ namespace ammo::common {
     };
 
     template <typename T>
-    struct packet {
+    struct message {
     public:
         message_header<T> header {};
         std::vector<uint8_t> body;
@@ -29,6 +29,20 @@ namespace ammo::common {
         bool validated_ = false;
 
     public:
+        message() = default;
+
+        message(const uint8_t* buffer, size_t size) {
+            if (size < sizeof(message_header<T>) || buffer == nullptr)
+                return;
+
+            std::memcpy(&header, buffer, sizeof(header));
+            body.resize(size - sizeof(header));
+            std::memcpy(body.data(),
+                        &buffer[sizeof(header)],
+                        size - sizeof(header));
+            packed_ = true;
+        }
+
         bool write(const void* data, size_t size) {
             if (packed_)
                 return false;
@@ -48,7 +62,7 @@ namespace ammo::common {
         }
 
         template<typename Data>
-        friend packet<T>& operator<<(packet<T>& pkt, const Data& data) {
+        friend message<T>& operator<<(message<T>& pkt, const Data& data) {
             static_assert(std::is_standard_layout<Data>::value,
                           "Type of data is not in standard layout thus not able to be serialized.");
 
@@ -60,7 +74,7 @@ namespace ammo::common {
         }
 
         template<typename Data>
-        friend packet<T>& operator>>(packet<T>& pkt, Data& data) {
+        friend message<T>& operator>>(message<T>& pkt, Data& data) {
             static_assert(std::is_standard_layout<Data>::value,
                           "Type of data is not in standard layout thus not able to be deserialized.");
 
@@ -72,14 +86,14 @@ namespace ammo::common {
         }
 
         void pack() {
-            header.message_size = body.size();
-            header.crc32 = crc32_fast(&magical_prefix_, sizeof(magical_prefix_));
-            header.crc32 = crc32_fast(body.data(), header.message_size, header.crc32);
             write(&end_of_packet_, sizeof(end_of_packet_));
+            header.crc32 = crc32_fast(&magical_prefix_, sizeof(magical_prefix_));
+            header.crc32 = crc32_fast(body.data(), body.size(), header.crc32);
+            header.message_size = body.size();
             packed_ = true;
         }
 
-        bool unpack() {
+        bool unpack_and_verify() {
             auto actual_crc32 = crc32_fast(&magical_prefix_, sizeof(magical_prefix_));
             actual_crc32 = crc32_fast(body.data(), header.message_size, actual_crc32);
             if (!packed_ || actual_crc32 != header.crc32)

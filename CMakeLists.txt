@@ -3,6 +3,8 @@ project(AMMOProtocol)
 
 set(CMAKE_CXX_STANDARD 20)
 
+include_directories(submodules/asio/asio/include)
+
 include (TestBigEndian)
 TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)

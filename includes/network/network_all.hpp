@@ -1,0 +1,6 @@
+#ifndef AMMOPROTOCOL_NETWORK_ALL_HPP
+#define AMMOPROTOCOL_NETWORK_ALL_HPP
+
+#include "connection.hpp"
+
+#endif //AMMOPROTOCOL_NETWORK_ALL_HPP

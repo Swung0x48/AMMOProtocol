@@ -1,3 +1,6 @@
 [submodule "submodules/crc32"]
 	path = submodules/crc32
 	url = https://github.com/stbrumme/crc32.git
+[submodule "submodules/asio"]
+	path = submodules/asio
+	url = https://github.com/chriskohlhoff/asio.git
