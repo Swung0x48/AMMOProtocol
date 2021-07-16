@@ -1,6 +1,12 @@
 #ifndef AMMOPROTOCOL_MESSAGE
 #define AMMOPROTOCOL_MESSAGE
 #include "common.hpp"
+#include "../network/network_all.hpp"
+
+namespace ammo::network {
+    template <typename Data>
+    class connection;
+}
 
 namespace ammo::common {
     template <typename T>
@@ -85,12 +91,16 @@ namespace ammo::common {
             return pkt;
         }
 
-        void pack() {
+        bool pack() {
             write(&end_of_packet_, sizeof(end_of_packet_));
+            header.message_size = body.size();
+            if (header.message_size > MAX_PACKET_SIZE) {
+                return false;
+            }
             header.crc32 = crc32_fast(&magical_prefix_, sizeof(magical_prefix_));
             header.crc32 = crc32_fast(body.data(), body.size(), header.crc32);
-            header.message_size = body.size();
             packed_ = true;
+            return true;
         }
 
         bool unpack_and_verify() {
@@ -106,6 +116,14 @@ namespace ammo::common {
             validated_ = true;
             return true;
         }
+    };
+
+#include "../network/network.hpp"
+    template<typename T>
+    struct owned_message
+    {
+        asio::ip::udp::endpoint remote;
+        message<T> message;
     };
 }
 

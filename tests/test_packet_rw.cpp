@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include "../AMMOProtocol.hpp"
 #include "common.hpp"
 #include <random>
 
@@ -8,7 +7,7 @@ TEST(PacketReadWrite, BasicAssertions) {
 
     auto now = std::chrono::high_resolution_clock::now();
     std::default_random_engine e(now.time_since_epoch().count());
-    unsigned int random[10000];
+    unsigned int random[255];
     for (unsigned int& i: random) {
         i = e();
     }
@@ -16,7 +15,7 @@ TEST(PacketReadWrite, BasicAssertions) {
     for (auto i: random) {
         message << i;
     }
-    message.pack();
+    ASSERT_TRUE(message.pack()) << "Failed on message pack. " << message.header.message_size << '/' << MAX_PACKET_SIZE;
 
     ASSERT_TRUE(message.unpack_and_verify()) << "Failed on message unpack_and_verify.";
     for (unsigned int & i: random) {

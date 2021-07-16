@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../AMMOProtocol.hpp"
+#include "common.hpp"
 
 TEST(ModuloQueue, BasicAssertions) {
     constexpr size_t size = 100;

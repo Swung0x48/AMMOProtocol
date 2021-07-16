@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include "../AMMOProtocol.hpp"
 #include "common.hpp"
 
 TEST(Vec3Serialization, BasicAssertions) {
