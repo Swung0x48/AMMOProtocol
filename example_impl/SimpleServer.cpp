@@ -1,6 +1,5 @@
 #include <iostream>
 #include <AMMOProtocol.hpp>
-using namespace std;
 
 enum PacketType: uint32_t {
     PacketFragment,
@@ -22,8 +21,24 @@ protected:
 int main() {
     SimpleServer server(50000);
     server.start();
+    std::atomic_bool updating = true;
+
+    std::thread update_thread([&server, &updating] () {
+        while (updating) {
+            server.update(64, true, std::chrono::minutes(5));
+        }
+    });
 
     while (true) {
-        server.update(64);
+        std::string cmd;
+        std::cin >> cmd;
+        if (cmd == "/stop") {
+            server.stop();
+            updating = false;
+            server.tick();
+            if (update_thread.joinable())
+                update_thread.join();
+            return 0;
+        }
     }
 }

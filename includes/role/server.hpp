@@ -34,9 +34,14 @@ namespace ammo::role {
             return true;
         }
 
-        void update(size_t max_message_count = -1, bool wait = true) {
-            if (wait)
-                incoming_messages_.wait();
+        template<class Rep, class Period>
+        void update(size_t max_message_count = -1, bool wait = true, const std::chrono::duration<Rep, Period>& rel_time = std::chrono::steady_clock::duration::zero()) {
+            if (wait) {
+                if (rel_time == std::chrono::steady_clock::duration::zero())
+                    incoming_messages_.wait();
+                else
+                    incoming_messages_.wait_for(rel_time);
+            }
 
             size_t message_count = 0;
             while (message_count < max_message_count && !incoming_messages_.empty()) {
@@ -52,6 +57,10 @@ namespace ammo::role {
                 ctx_thread_.join();
 
             std::cout << "[INFO] Server Stopped!" << std::endl;
+        }
+
+        void tick() {
+            incoming_messages_.tick();
         }
 
         bool accept_client() {

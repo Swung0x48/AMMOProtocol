@@ -17,6 +17,7 @@ namespace ammo::structure {
         std::deque <T> raw_deque_;
         std::condition_variable to_update_cv_;
         std::mutex to_update_mtx_;
+        std::atomic_bool do_tick = false;
 
     public:
         const T &front() {
@@ -75,10 +76,25 @@ namespace ammo::structure {
         }
 
         void wait() {
-            while (empty()) {
+            while (empty() && !do_tick) {
                 std::unique_lock <std::mutex> lk(to_update_mtx_);
                 to_update_cv_.wait(lk);
             }
+            do_tick = false;
+        }
+
+        template<class Rep, class Period>
+        void wait_for(const std::chrono::duration<Rep, Period>& rel_time) {
+            while (empty() && !do_tick) {
+                std::unique_lock <std::mutex> lk(to_update_mtx_);
+                to_update_cv_.wait_for(lk, rel_time);
+            }
+            do_tick = false;
+        }
+
+        void tick() {
+            do_tick = true;
+            to_update_cv_.notify_one();
         }
     };
 }
