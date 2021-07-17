@@ -48,3 +48,8 @@ add_test(NAME test_sanity_check COMMAND test_sanity_check)
 add_test(NAME test_packet_rw COMMAND test_packet_rw)
 add_test(NAME test_entity_serialization COMMAND test_entity_serialization)
 add_test(NAME test_modulo_queue COMMAND test_modulo_queue)
+
+include_directories(submodules/asio)
+include_directories(submodules/crc32)
+include_directories(includes)
+add_executable(SimpleServer example_impl/SimpleServer.cpp  submodules/crc32/Crc32.cpp submodules/crc32/Crc32.h)
