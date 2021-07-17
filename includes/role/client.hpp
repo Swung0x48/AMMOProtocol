@@ -4,21 +4,24 @@ namespace ammo::role {
     template<typename T>
     class client {
     protected:
+        enum class client_state {
+            Disconnected,
+            Pending,
+            Connected
+        };
         asio::io_context io_context_;
         std::thread ctx_thread_;
         asio::ip::udp::socket socket_;
         ammo::network::receiver<T> receiver_;
         ammo::network::sender<T> sender_;
+        asio::ip::udp::endpoint server_endpoint_;
     private:
         ammo::structure::ts_queue<ammo::common::owned_message<T>> incoming_messages_;
         ammo::structure::ts_queue<ammo::common::owned_message<T>> outgoing_messages_;
 
         // async
-        void connect_to_server(const asio::ip::udp::resolver::results_type& endpoints) {
-            std::atomic_int retry_count = 0;
-            for (const auto& i: endpoints) {
+        void connect_to_server(const asio::ip::udp::endpoint& endpoint) {
 
-            }
         }
     public:
         client():
@@ -31,8 +34,8 @@ namespace ammo::role {
         bool connect(const std::string& host, const uint16_t port) {
             try {
                 asio::ip::udp::resolver resolver(io_context_);
-                auto endpoints = resolver.resolve(host, std::to_string(port));
-                connect_to_server(endpoints);
+                auto endpoint = *resolver.resolve(host, std::to_string(port)).begin();
+                connect_to_server(endpoint);
                 ctx_thread_ = std::thread([this]() { io_context_.run(); });
             } catch (std::exception& e) {
                 std::cerr << "Client exception: " << e.what() << std::endl;
