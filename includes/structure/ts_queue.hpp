@@ -9,7 +9,7 @@ namespace ammo::structure {
     public:
         ts_queue() = default;
 
-        ts_queue(const ts_queue <T> &) = delete; // explicitly delete copy constructor
+        ts_queue(const ts_queue<T>&) = delete; // explicitly delete copy constructor
         virtual ~ts_queue() { clear(); }
 
     protected:
