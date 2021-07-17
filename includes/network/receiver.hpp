@@ -60,6 +60,7 @@ namespace ammo::network {
                                 std::cout << "[WARN] Packet probably corrupted." << '\n';
                                 std::cout << "[WARN] Bytes transferred: " << bytes_transferred << std::endl;
                             } else {
+                                std::cout << "[INFO] Received a msg" << std::endl;
                                 add_to_incoming_message_queue();
                             }
                         }

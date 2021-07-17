@@ -15,20 +15,22 @@ namespace ammo::role {
         ammo::network::receiver<T> receiver_;
         ammo::network::sender<T> sender_;
         asio::ip::udp::endpoint server_endpoint_;
+        client_state client_state_ = client_state::Disconnected;
     private:
         ammo::structure::ts_queue<ammo::common::owned_message<T>> incoming_messages_;
         ammo::structure::ts_queue<ammo::common::owned_message<T>> outgoing_messages_;
 
         // async
         void connect_to_server(const asio::ip::udp::endpoint& endpoint) {
-
+            server_endpoint_ = endpoint;
+            client_state_ = client_state::Connected;
         }
     public:
         client():
-            socket_(io_context_),
-            receiver_(socket_, incoming_messages_),
-            sender_(io_context_, socket_, outgoing_messages_) {
-
+        socket_(io_context_),
+        receiver_(socket_, incoming_messages_),
+        sender_(io_context_, socket_, outgoing_messages_) {
+            socket_.open(asio::ip::udp::v4());
         }
 
         bool connect(const std::string& host, const uint16_t port) {
@@ -36,11 +38,31 @@ namespace ammo::role {
                 asio::ip::udp::resolver resolver(io_context_);
                 auto endpoint = *resolver.resolve(host, std::to_string(port)).begin();
                 connect_to_server(endpoint);
+                receiver_.start_receiving();
+                sender_.send_validation(endpoint);
+
                 ctx_thread_ = std::thread([this]() { io_context_.run(); });
             } catch (std::exception& e) {
                 std::cerr << "Client exception: " << e.what() << std::endl;
                 return false;
             }
+
+            return true;
+        }
+
+        void send(const ammo::common::message<T>& msg) {
+            ammo::common::owned_message<T> owned_message = { server_endpoint_, std::move(msg) };
+            sender_.send(owned_message);
+        }
+
+        void disconnect() {
+            io_context_.stop();
+            if (ctx_thread_.joinable())
+                ctx_thread_.join();
+        }
+
+        bool connected() {
+            return client_state_ == client_state::Connected;
         }
     };
 }

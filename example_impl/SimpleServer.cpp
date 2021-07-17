@@ -3,7 +3,7 @@
 
 enum PacketType: uint32_t {
     PacketFragment,
-    Echo
+    Ping
 };
 
 class SimpleServer: public ammo::role::server<PacketType> {

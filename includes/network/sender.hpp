@@ -30,6 +30,19 @@ namespace ammo::network {
         void send_connection_token() {
 
         }
+
+        void send_validation(const asio::ip::udp::endpoint& endpoint) {
+            std::cout << "Send validation to: " << endpoint << std::endl;
+            socket_.async_send_to(asio::buffer("Hello world"), endpoint,
+                                  [this](const asio::error_code& error, size_t bytes_transferred) {
+                if (!error) {
+                    std::cout << "Hello world from send_validation" << std::endl;
+                    std::cout << "bytes transferred: " << bytes_transferred << std::endl;
+                } else {
+                    std::cerr << "[ERR] " << error.message() << std::endl;
+                }
+            });
+        }
     private:
         // async
         void write_message() {
@@ -40,12 +53,17 @@ namespace ammo::network {
                                  outgoing_messages_.front().message.body.size())
             };
 
+            std::cout << outgoing_messages_.front().remote << std::endl;
+
             socket_.async_send_to(message_buffer, outgoing_messages_.front().remote,
                                   [this](const asio::error_code &error, size_t bytes_transferred) {
                 if (!error) {
                     outgoing_messages_.pop_front();
                     if (!outgoing_messages_.empty())
                         write_message();
+                } else {
+                    std::cerr << "[ERR] Failed to send message.\n";
+                    std::cerr << "[ERR] Remote: " << outgoing_messages_.front().remote << std::endl;
                 }
             });
         }
