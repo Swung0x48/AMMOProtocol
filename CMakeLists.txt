@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(AMMOProtocol)
 
 set(CMAKE_CXX_STANDARD 20)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 include_directories(submodules/asio/asio/include)
 
@@ -52,5 +53,9 @@ add_test(NAME test_modulo_queue COMMAND test_modulo_queue)
 include_directories(submodules/asio)
 include_directories(submodules/crc32)
 include_directories(includes)
+
+find_package(Threads REQUIRED)
 add_executable(SimpleServer example_impl/SimpleServer.cpp  submodules/crc32/Crc32.cpp submodules/crc32/Crc32.h)
+target_link_libraries (SimpleServer PRIVATE Threads::Threads)
 add_executable(SimpleClient example_impl/SimpleClient.cpp  submodules/crc32/Crc32.cpp submodules/crc32/Crc32.h)
+target_link_libraries (SimpleClient PRIVATE Threads::Threads)
