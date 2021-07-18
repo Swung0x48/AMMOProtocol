@@ -63,6 +63,12 @@ namespace ammo::role {
             incoming_messages_.tick();
         }
 
+        void send(ammo::common::owned_message<T>& msg) {
+            if (!msg.message.is_packed())
+                msg.message.pack();
+            sender_.send(msg);
+        }
+
         bool accept_client() {
 
         }

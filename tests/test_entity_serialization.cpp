@@ -9,9 +9,13 @@ TEST(Vec3Serialization, BasicAssertions) {
     expected.y = 2.0f;
     expected.z = 3.0f;
     expected.serialize(packet);
-    packet.pack();
+    ASSERT_TRUE(packet.pack()) << "Failed on message pack. " << packet.header.message_size << '/' << MAX_PACKET_SIZE;
+    ASSERT_TRUE(packet.is_packed());
+    ASSERT_FALSE(packet.is_validated());
 
     ASSERT_TRUE(packet.unpack_and_verify()) << "Failed on packet unpack_and_verify.";
+    ASSERT_TRUE(packet.is_validated());
+    ASSERT_FALSE(packet.is_packed());
     ammo::entity::vec3<PacketType> actual;
     actual.deserialize(packet);
     ASSERT_EQ(expected.x, actual.x);
@@ -28,9 +32,13 @@ TEST(QuaternionSerialization, BasicAssertions) {
     expected.z = 3.0f;
     expected.w = 4.0f;
     expected.serialize(packet);
-    packet.pack();
+    ASSERT_TRUE(packet.pack()) << "Failed on message pack. " << packet.header.message_size << '/' << MAX_PACKET_SIZE;
+    ASSERT_TRUE(packet.is_packed());
+    ASSERT_FALSE(packet.is_validated());
 
     ASSERT_TRUE(packet.unpack_and_verify()) << "Failed on packet unpack_and_verify.";
+    ASSERT_TRUE(packet.is_validated());
+    ASSERT_FALSE(packet.is_packed());
     ammo::entity::quaternion<PacketType> actual;
     actual.deserialize(packet);
     ASSERT_EQ(expected.x, actual.x);
@@ -53,9 +61,13 @@ TEST(MixedSerialization, BasicAssertions) {
     expected_quaternion.z = 6.0f;
     expected_quaternion.w = 7.0f;
     expected_quaternion.serialize(packet);
-    packet.pack();
+    ASSERT_TRUE(packet.pack()) << "Failed on message pack. " << packet.header.message_size << '/' << MAX_PACKET_SIZE;
+    ASSERT_TRUE(packet.is_packed());
+    ASSERT_FALSE(packet.is_validated());
 
     ASSERT_TRUE(packet.unpack_and_verify()) << "Failed on packet unpack_and_verify.";
+    ASSERT_TRUE(packet.is_validated());
+    ASSERT_FALSE(packet.is_packed());
     ammo::entity::vec3<PacketType> actual_vec3;
     ammo::entity::quaternion<PacketType> actual_quaternion;
     actual_vec3.deserialize(packet);

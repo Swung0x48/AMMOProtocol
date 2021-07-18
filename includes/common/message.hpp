@@ -101,6 +101,7 @@ namespace ammo::common {
                 return false;
             }
             header.message_state |= PACKED_MASK;
+            header.message_state &= ~VALIDATED_MASK; // not validated
             header.crc32 = crc32_fast(&magical_prefix_, sizeof(magical_prefix_));
             header.crc32 = crc32_fast(body.data(), body.size(), header.crc32);
             header.crc32 = crc32_fast(&header.sequence, sizeof(header) - sizeof(header.crc32), header.crc32);

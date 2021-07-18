@@ -15,6 +15,9 @@ protected:
         std::cout << "Received a msg!\n";
         std::cout << "From: " << msg.remote.address() << ':' << msg.remote.port() << "\n";
         std::cout << msg.message.body.data() << std::endl;
+        if (msg.message.header.id == Ping) {
+            send(msg);
+        }
     }
 };
 

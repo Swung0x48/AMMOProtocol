@@ -16,8 +16,12 @@ TEST(PacketReadWrite, BasicAssertions) {
         message << i;
     }
     ASSERT_TRUE(message.pack()) << "Failed on message pack. " << message.header.message_size << '/' << MAX_PACKET_SIZE;
+    ASSERT_TRUE(message.is_packed());
+    ASSERT_FALSE(message.is_validated());
 
     ASSERT_TRUE(message.unpack_and_verify()) << "Failed on message unpack_and_verify.";
+    ASSERT_TRUE(message.is_validated());
+    ASSERT_FALSE(message.is_packed());
     for (unsigned int & i: random) {
         int temp;
         message >> temp;
@@ -32,6 +36,8 @@ TEST(PacketReadWrite, BasicAssertions) {
 
     ammo::common::message<PacketType> reconstructed_message(data.data(), data.size());
     ASSERT_TRUE(reconstructed_message.unpack_and_verify()) << "Failed on message unpack_and_verify.";
+    ASSERT_TRUE(reconstructed_message.is_validated());
+    ASSERT_FALSE(reconstructed_message.is_packed());
     for (unsigned int & i: random) {
         int temp;
         reconstructed_message >> temp;
