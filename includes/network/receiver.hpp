@@ -42,6 +42,8 @@ namespace ammo::network {
         void parse_message_from_buffer() {
 //            std::memcpy(current_incoming_message_.header, buffer_, sizeof(current_incoming_message_.header));
             std::memcpy(&current_incoming_message_.header, buffer_.data(), sizeof(current_incoming_message_.header));
+            if (current_incoming_message_.header.message_size > MAX_PACKET_SIZE) // In case of a corrupted packet/non-packet
+                return;
             current_incoming_message_.body.resize(current_incoming_message_.header.message_size);
             std::memcpy(current_incoming_message_.body.data(), buffer_.data() + sizeof(current_incoming_message_.header), current_incoming_message_.body.size());
         }
