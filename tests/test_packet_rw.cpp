@@ -44,3 +44,14 @@ TEST(PacketReadWrite, BasicAssertions) {
         ASSERT_EQ(temp, i) << "Item #" << i << " is not equal to expected.";
     }
 }
+
+TEST(EmptyPacketReadWrite, BasicAssertions) {
+    ammo::common::message<PacketType> message;
+    ASSERT_TRUE(message.pack()) << "Failed on message pack. " << message.header.message_size << '/' << MAX_PACKET_SIZE;
+    ASSERT_TRUE(message.is_packed());
+    ASSERT_FALSE(message.is_validated());
+
+    ASSERT_TRUE(message.unpack_and_verify()) << "Failed on message unpack_and_verify.";
+    ASSERT_TRUE(message.is_validated());
+    ASSERT_FALSE(message.is_packed());
+}
