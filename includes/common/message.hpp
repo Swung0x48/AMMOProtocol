@@ -141,7 +141,7 @@ namespace ammo::common {
     struct owned_message
     {
         asio::ip::udp::endpoint remote;
-        message<T> message;
+        struct message<T> message;
     };
 }
 
