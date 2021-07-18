@@ -70,7 +70,7 @@ namespace ammo::role {
         }
 
         bool accept_client() {
-
+            return true;
         }
 
     protected:
