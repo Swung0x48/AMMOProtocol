@@ -39,11 +39,13 @@ namespace ammo::network {
             incoming_messages_.push_back({ current_remote_endpoint_, current_incoming_message_ });
         }
 
-        void parse_message_from_buffer() {
+        void parse_message_from_buffer(size_t bytes_transferred) {
 //            std::memcpy(current_incoming_message_.header, buffer_, sizeof(current_incoming_message_.header));
             std::memcpy(&current_incoming_message_.header, buffer_.data(), sizeof(current_incoming_message_.header));
-            if (current_incoming_message_.header.message_size > MAX_PACKET_SIZE) // In case of a corrupted packet/non-packet
+            if (current_incoming_message_.header.message_size > bytes_transferred) { // In case of a corrupted packet/non-packet
+                std::cout << "[WARN] A possible corrupted packet detected on parse message" << std::endl;
                 return;
+            }
             current_incoming_message_.body.resize(current_incoming_message_.header.message_size);
             std::memcpy(current_incoming_message_.body.data(), buffer_.data() + sizeof(current_incoming_message_.header), current_incoming_message_.body.size());
         }
@@ -55,7 +57,7 @@ namespace ammo::network {
                     [this](const asio::error_code &error, size_t bytes_transferred) {
                         if (!error) {
 //                            current_incoming_message_(buffer_, bytes_transferred);
-                            parse_message_from_buffer();
+                            parse_message_from_buffer(bytes_transferred);
                             if (!current_incoming_message_.unpack_and_verify()) {
                                 std::cout << "[WARN] From " << endpoint_to_string(current_remote_endpoint_) << "\n";
                                 std::cout << "[WARN] Packet failed on unpack_and_verify.\n";
