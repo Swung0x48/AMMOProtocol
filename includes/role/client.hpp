@@ -61,6 +61,10 @@ namespace ammo::role {
                 ctx_thread_.join();
         }
 
+        ammo::structure::ts_queue<ammo::common::owned_message<T>>& get_incoming_messages() {
+            return incoming_messages_;
+        }
+
         bool connected() {
             return client_state_ == client_state::Connected;
         }

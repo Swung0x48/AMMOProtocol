@@ -53,8 +53,6 @@ namespace ammo::network {
                                  outgoing_messages_.front().message.body.size())
             };
 
-            std::cout << outgoing_messages_.front().remote << std::endl;
-
             socket_.async_send_to(message_buffer, outgoing_messages_.front().remote,
                                   [this](const asio::error_code &error, size_t bytes_transferred) {
                 if (!error) {
