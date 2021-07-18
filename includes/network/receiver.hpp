@@ -4,10 +4,10 @@
 #include "network.hpp"
 namespace ammo::common {
     template<typename Data>
-    class message;
+    struct message;
 
     template<typename Data>
-    class owned_message;
+    struct owned_message;
 }
 
 namespace ammo::network {
