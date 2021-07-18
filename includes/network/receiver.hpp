@@ -60,6 +60,7 @@ namespace ammo::network {
                             if (!parse_message_from_buffer(bytes_transferred)) {
                                 std::cout << "[WARN] A possible corrupted packet detected on parse message" << std::endl;
                                 read_message();
+                                return;
                             }
                             if (!current_incoming_message_.unpack_and_verify()) {
                                 std::cout << "[WARN] From " << endpoint_to_string(current_remote_endpoint_) << "\n";
