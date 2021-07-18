@@ -1,7 +1,6 @@
 #ifndef AMMOPROTOCOL_MODULO_QUEUE_HPP
 #define AMMOPROTOCOL_MODULO_QUEUE_HPP
 #include "structure.hpp"
-#include <array>
 
 namespace ammo::structure {
 template<typename T, size_t Size>

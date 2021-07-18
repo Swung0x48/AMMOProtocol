@@ -1,7 +1,6 @@
 #ifndef AMMOPROTOCOL_TS_QUEUE_HPP
 #define AMMOPROTOCOL_TS_QUEUE_HPP
-#include <deque>
-#include <mutex>
+#include "structure.hpp"
 
 namespace ammo::structure {
     template<typename T>

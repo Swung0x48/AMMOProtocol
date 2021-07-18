@@ -1,5 +1,6 @@
 #include <iostream>
 #include <AMMOProtocol.hpp>
+#include <atomic>
 
 enum PacketType: uint32_t {
     PacketFragment,
@@ -12,9 +13,9 @@ public:
 
 protected:
     void on_message(ammo::common::owned_message<PacketType>& msg) override {
-        std::cout << "Received a msg!\n";
-        std::cout << "From: " << msg.remote.address() << ':' << msg.remote.port() << "\n";
-        std::cout << msg.message.body.data() << std::endl;
+//        std::cout << "Received a msg!\n";
+//        std::cout << "From: " << msg.remote.address() << ':' << msg.remote.port() << "\n";
+//        std::cout << msg.message.body.data() << std::endl;
         if (msg.message.header.id == Ping) {
             send(msg);
         }
