@@ -24,6 +24,7 @@ TEST(PacketReadWrite, BasicAssertions) {
         ASSERT_EQ(temp, i) << "Item #" << i << " is not equal to expected.";
     }
 
+    ASSERT_TRUE(message.pack()) << "Failed on message pack. " << message.header.message_size << '/' << MAX_PACKET_SIZE;
     std::vector<uint8_t> data;
     data.resize(message.header.message_size + sizeof(message.header));
     std::memcpy(data.data(), &message.header, sizeof(message.header));

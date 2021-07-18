@@ -31,7 +31,8 @@ namespace ammo::common {
     private:
         static constexpr uint64_t magical_prefix_ = 1626227971404604; // Not sent
         static constexpr uint32_t end_of_packet_ = 1;
-        bool packed_ = false;
+        static constexpr uint8_t PACKED_MASK = 0b00000001;
+        static constexpr uint8_t VALIDATED_MASK = 0b00000010;
         bool validated_ = false;
 
     public:
@@ -46,11 +47,12 @@ namespace ammo::common {
             std::memcpy(body.data(),
                         &buffer[sizeof(header)],
                         size - sizeof(header));
-            packed_ = true;
+//            packed_ = true;
+            header.message_state |= PACKED_MASK;
         }
 
         bool write(const void* data, size_t size) {
-            if (packed_)
+            if (is_packed())
                 return false;
             body.resize(write_position + size);
             std::memcpy(body.data() + write_position, data, size);
@@ -59,7 +61,7 @@ namespace ammo::common {
         }
 
         bool read(void* data, size_t size) {
-            if (!validated_)
+            if (!is_validated())
                 return false;
 
             std::memcpy(data, body.data() + read_position, size);
@@ -73,7 +75,7 @@ namespace ammo::common {
                           "Type of data is not in standard layout thus not able to be serialized.");
 
             if (!pkt.write(&data, sizeof(data)))
-                throw std::runtime_error("Packet write failed. Maybe packet is packed_?");
+                throw std::runtime_error("Packet write failed. Maybe packet is packed?");
 
             // Return the resulting msg so that it could be chain-called.
             return pkt;
@@ -92,28 +94,43 @@ namespace ammo::common {
         }
 
         bool pack() {
+            write_position = body.size();
             write(&end_of_packet_, sizeof(end_of_packet_));
             header.message_size = body.size();
             if (header.message_size > MAX_PACKET_SIZE) {
                 return false;
             }
+            header.message_state |= PACKED_MASK;
             header.crc32 = crc32_fast(&magical_prefix_, sizeof(magical_prefix_));
             header.crc32 = crc32_fast(body.data(), body.size(), header.crc32);
-            packed_ = true;
+            header.crc32 = crc32_fast(&header.sequence, sizeof(header) - sizeof(header.crc32), header.crc32);
             return true;
+        }
+
+        bool is_packed() {
+            return bool(header.message_state & PACKED_MASK);
+        }
+
+        bool is_validated() {
+            return bool((header.message_state & VALIDATED_MASK) >> 1);
         }
 
         bool unpack_and_verify() {
             auto actual_crc32 = crc32_fast(&magical_prefix_, sizeof(magical_prefix_));
             actual_crc32 = crc32_fast(body.data(), header.message_size, actual_crc32);
-            if (!packed_ || actual_crc32 != header.crc32)
+            actual_crc32 = crc32_fast(&header.sequence, sizeof(header) - sizeof(header.crc32), actual_crc32);
+            if (!is_packed() || actual_crc32 != header.crc32)
                 return false;
             // Check if has a valid end_of_packet_
             if (*((typeof(end_of_packet_)*)(body.data() + body.size() - sizeof(end_of_packet_))) != end_of_packet_)
                 return false;
 
-            packed_ = false;
-            validated_ = true;
+            body.resize(body.size() - sizeof(end_of_packet_));
+            header.message_size -= sizeof(end_of_packet_);
+            header.message_state &= ~PACKED_MASK; // not packed
+            header.message_state |= VALIDATED_MASK; // validated
+//            packed_ = false;
+//            validated_ = true;
             return true;
         }
     };

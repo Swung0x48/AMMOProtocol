@@ -41,9 +41,9 @@ namespace ammo::network {
 
         void parse_message_from_buffer() {
 //            std::memcpy(current_incoming_message_.header, buffer_, sizeof(current_incoming_message_.header));
-            std::memcpy(buffer_.data(), &current_incoming_message_.header, sizeof(current_incoming_message_.header));
+            std::memcpy(&current_incoming_message_.header, buffer_.data(), sizeof(current_incoming_message_.header));
             current_incoming_message_.body.resize(current_incoming_message_.header.message_size);
-            std::memcpy(buffer_.data() + sizeof(current_incoming_message_.header), current_incoming_message_.body.data(), current_incoming_message_.body.size());
+            std::memcpy(current_incoming_message_.body.data(), buffer_.data() + sizeof(current_incoming_message_.header), current_incoming_message_.body.size());
         }
 
         // async
