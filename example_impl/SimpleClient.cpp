@@ -56,7 +56,7 @@ int main() {
             break;
         }
     }
-//    client.disconnect();
+    client.disconnect();
     if (thread.joinable())
         thread.join();
 }
