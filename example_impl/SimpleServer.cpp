@@ -4,7 +4,8 @@
 
 enum PacketType: uint32_t {
     PacketFragment,
-    Ping
+    Ping,
+    Name
 };
 
 class SimpleServer: public ammo::role::server<PacketType> {
@@ -13,8 +14,19 @@ public:
 
 protected:
     void on_message(ammo::common::owned_message<PacketType>& msg) override {
-        if (msg.message.header.id == Ping) {
-            send(msg);
+        switch (msg.message.header.id) {
+            case PacketFragment:
+                break;
+            case Ping:
+                std::cout << "Rcvd a ping" << std::endl;
+                send(msg);
+                break;
+            case Name:
+                ammo::entity::string<PacketType> name;
+                name.deserialize(msg.message);
+                std::cout << "Client identify itself as " << name.str << std::endl;
+                send(msg);
+                break;
         }
     }
 };

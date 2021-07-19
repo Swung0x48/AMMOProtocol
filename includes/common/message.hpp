@@ -12,6 +12,7 @@ namespace ammo::common {
     template <typename T>
     struct message_header {
         static_assert(sizeof(T) == 4 && CHAR_BIT == 8, "T should be an uint32_t based enum");
+        uint32_t begin_of_packet = 0u;
         uint32_t crc32 = 0u;
         uint32_t sequence = 0u;
         T id {};
@@ -30,10 +31,9 @@ namespace ammo::common {
         size_t read_position = 0;
     private:
         static constexpr uint64_t magical_prefix_ = 1626227971404604; // Not sent
-        static constexpr uint32_t end_of_packet_ = 1;
+//        static constexpr uint32_t end_of_packet_ = 1;
         static constexpr uint8_t PACKED_MASK = 0b00000001;
         static constexpr uint8_t VALIDATED_MASK = 0b00000010;
-        bool validated_ = false;
 
     public:
         message() = default;
@@ -94,17 +94,19 @@ namespace ammo::common {
         }
 
         bool pack() {
-            write_position = body.size();
-            write(&end_of_packet_, sizeof(end_of_packet_));
+//            write_position = body.size();
+//            write(&end_of_packet_, sizeof(end_of_packet_));
+            header.begin_of_packet = 1u;
             header.message_size = body.size();
             if (header.message_size > MAX_PACKET_SIZE) {
+                std::cerr << "[ERR] Message size exceeds MAX_PACKET_SIZE. " << '(' << header.message_size << '>' << MAX_PACKET_SIZE << ')' << std::endl;
                 return false;
             }
             header.message_state |= PACKED_MASK;
             header.message_state &= ~VALIDATED_MASK; // not validated
             header.crc32 = crc32_fast(&magical_prefix_, sizeof(magical_prefix_));
             header.crc32 = crc32_fast(body.data(), body.size(), header.crc32);
-            header.crc32 = crc32_fast(&header.sequence, sizeof(header) - sizeof(header.crc32), header.crc32);
+            header.crc32 = crc32_fast(&header.sequence, sizeof(header) - sizeof(header.crc32) - sizeof(header.begin_of_packet), header.crc32);
             return true;
         }
 
@@ -117,17 +119,19 @@ namespace ammo::common {
         }
 
         bool unpack_and_verify() {
+            if (header.begin_of_packet != 1u)
+                return false;
             auto actual_crc32 = crc32_fast(&magical_prefix_, sizeof(magical_prefix_));
             actual_crc32 = crc32_fast(body.data(), header.message_size, actual_crc32);
-            actual_crc32 = crc32_fast(&header.sequence, sizeof(header) - sizeof(header.crc32), actual_crc32);
+            actual_crc32 = crc32_fast(&header.sequence, sizeof(header) - sizeof(header.crc32) - sizeof(header.begin_of_packet), actual_crc32);
             if (!is_packed() || actual_crc32 != header.crc32)
                 return false;
             // Check if has a valid end_of_packet_
-            if (*((typeof(end_of_packet_)*)(body.data() + body.size() - sizeof(end_of_packet_))) != end_of_packet_)
-                return false;
+//            if (*((typeof(end_of_packet_)*)(body.data() + body.size() - sizeof(end_of_packet_))) != end_of_packet_)
+//                return false;
 
-            body.resize(body.size() - sizeof(end_of_packet_));
-            header.message_size -= sizeof(end_of_packet_);
+//            body.resize(body.size() - sizeof(end_of_packet_));
+//            header.message_size -= sizeof(end_of_packet_);
             header.message_state &= ~PACKED_MASK; // not packed
             header.message_state |= VALIDATED_MASK; // validated
 //            packed_ = false;
