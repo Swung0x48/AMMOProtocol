@@ -47,6 +47,21 @@ TEST(QuaternionSerialization, BasicAssertions) {
     ASSERT_EQ(expected.w, actual.w);
 }
 
+TEST(StringSerialization, BasicAssertions) {
+    ammo::common::message<PacketType> packet;
+    ammo::entity::string<PacketType> expected = "abcdefghi";
+    expected.serialize(packet);
+    ASSERT_TRUE(packet.pack()) << "Failed on message pack. " << packet.header.message_size << '/' << MAX_PACKET_SIZE;
+    ASSERT_TRUE(packet.is_packed());
+    ASSERT_FALSE(packet.is_validated());
+    ammo::entity::string<PacketType> actual;
+    ASSERT_TRUE(packet.unpack_and_verify()) << "Failed on packet unpack_and_verify.";
+    ASSERT_TRUE(packet.is_validated());
+    ASSERT_FALSE(packet.is_packed());
+    actual.deserialize(packet);
+    ASSERT_STREQ(expected.str.c_str(), actual.str.c_str());
+}
+
 TEST(MixedSerialization, BasicAssertions) {
     ammo::common::message<PacketType> packet;
 
