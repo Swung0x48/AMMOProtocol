@@ -13,14 +13,15 @@ public:
 
 protected:
     void on_message(ammo::common::owned_message<PacketType>& msg) override {
-//        std::cout << "Received a msg!\n";
-//        std::cout << "From: " << msg.remote.address() << ':' << msg.remote.port() << "\n";
-//        std::cout << msg.message.body.data() << std::endl;
         if (msg.message.header.id == Ping) {
             send(msg);
         }
     }
 };
+
+void do_idle_work() {
+    // Do something here when the server is idle. (Regular cleanup/checkup etc.)
+}
 
 int main() {
     SimpleServer server(50000);
@@ -29,7 +30,10 @@ int main() {
 
     std::thread update_thread([&server, &updating] () {
         while (updating) {
-            server.update(64, true, std::chrono::minutes(5));
+            auto status = server.update(64, true, std::chrono::minutes(5));
+            if (status == std::cv_status::timeout) {
+                do_idle_work();
+            }
         }
     });
 

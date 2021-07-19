@@ -20,6 +20,10 @@ namespace ammo::role {
             sender_(io_context_, socket_, outgoing_messages_) {
         }
 
+        virtual ~server() {
+            stop();
+        }
+
         bool start() {
             try {
                 receiver_.start_receiving();
@@ -35,12 +39,13 @@ namespace ammo::role {
         }
 
         template<class Rep, class Period>
-        void update(size_t max_message_count = -1, bool wait = true, const std::chrono::duration<Rep, Period>& rel_time = std::chrono::steady_clock::duration::zero()) {
+        std::cv_status update(size_t max_message_count = -1, bool wait = true, const std::chrono::duration<Rep, Period>& rel_time = std::chrono::steady_clock::duration::zero()) {
+            auto status = std::cv_status::no_timeout;
             if (wait) {
                 if (rel_time == std::chrono::steady_clock::duration::zero())
                     incoming_messages_.wait();
                 else
-                    incoming_messages_.wait_for(rel_time);
+                    status = incoming_messages_.wait_for(rel_time);
             }
 
             size_t message_count = 0;
@@ -49,6 +54,7 @@ namespace ammo::role {
                 on_message(msg);
                 ++message_count;
             }
+            return status;
         }
 
         void stop() {
