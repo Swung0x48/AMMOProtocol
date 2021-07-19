@@ -1,7 +1,5 @@
 #ifndef AMMOPROTOCOL_ENTITY_HPP
 #define AMMOPROTOCOL_ENTITY_HPP
-#include "common.hpp"
-#include "message.hpp"
 
 namespace ammo::entity {
     template<typename T>
