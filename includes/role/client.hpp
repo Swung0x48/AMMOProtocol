@@ -50,7 +50,9 @@ namespace ammo::role {
             return true;
         }
 
-        void send(const ammo::common::message<T>& msg) {
+        void send(ammo::common::message<T>& msg) {
+            if (!msg.is_packed())
+                msg.pack();
             ammo::common::owned_message<T> owned_message = { server_endpoint_, std::move(msg) };
             sender_.send(owned_message);
         }
