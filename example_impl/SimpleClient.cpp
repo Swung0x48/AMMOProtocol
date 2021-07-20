@@ -38,6 +38,7 @@ int main() {
                         std::cout << "[INFO] Connected to server!" << std::endl;
                     }
                 }
+
             }
             if (client.connected()) {
                 if (!client.get_incoming_messages().empty()) {

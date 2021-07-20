@@ -43,6 +43,12 @@ TEST(PacketReadWrite, BasicAssertions) {
         reconstructed_message >> temp;
         ASSERT_EQ(temp, i) << "Item #" << i << " is not equal to expected.";
     }
+
+    reconstructed_message.clear();
+    ASSERT_EQ(reconstructed_message.header.message_size, 0);
+    ASSERT_EQ(reconstructed_message.body.size(), 0);
+    bool a;
+    ASSERT_THROW(reconstructed_message >> a, std::runtime_error);
 }
 
 TEST(EmptyPacketReadWrite, BasicAssertions) {

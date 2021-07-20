@@ -51,9 +51,23 @@ namespace ammo::common {
             header.message_state |= PACKED_MASK;
         }
 
+        bool clear() {
+            if (is_packed())
+                return false;
+
+            body.clear();
+            header.message_size = 0;
+            header.message_state = 0u;
+            read_position = 0;
+            write_position = 0;
+            return true;
+        }
+
         bool write(const void* data, size_t size) {
             if (is_packed())
                 return false;
+
+            header.message_state = 0u;
             body.resize(write_position + size);
             std::memcpy(body.data() + write_position, data, size);
             write_position += size;
@@ -62,6 +76,9 @@ namespace ammo::common {
 
         bool read(void* data, size_t size) {
             if (!is_validated())
+                return false;
+
+            if (read_position + size > body.size())
                 return false;
 
             std::memcpy(data, body.data() + read_position, size);
@@ -87,7 +104,7 @@ namespace ammo::common {
                           "Type of data is not in standard layout thus not able to be deserialized.");
 
             if (!pkt.read(&data, sizeof(data)))
-                throw std::runtime_error("Packet read failed. Maybe not unpacked?");
+                throw std::runtime_error("Packet read failed. Maybe not unpacked or read past the end of packet. " + std::to_string(pkt.body.size()) + "/" + std::to_string(pkt.read_position + sizeof(Data)));
 
             // Return the resulting msg so that it could be chain-called.
             return pkt;
