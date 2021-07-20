@@ -25,7 +25,7 @@ namespace ammo::role {
         // async
         virtual void connect_to_server() {
             client_state_ = client_state::Pending;
-            send_validation();
+            send_request();
         }
     public:
         client():
@@ -40,7 +40,6 @@ namespace ammo::role {
                 asio::ip::udp::resolver resolver(io_context_);
                 server_endpoint_ = *resolver.resolve(host, std::to_string(port)).begin();
                 connect_to_server();
-//                sender_.send_validation(server_endpoint_);
                 receiver_.start_receiving();
                 ctx_thread_ = std::thread([this]() { io_context_.run(); });
             } catch (std::exception& e) {
@@ -60,7 +59,7 @@ namespace ammo::role {
             sender_.send(owned_message);
         }
 
-        virtual void send_validation() = 0;
+        virtual void send_request() = 0;
 
         void confirm_validation() {
             client_state_ = client_state::Connected;
