@@ -65,7 +65,7 @@ namespace ammo::role {
             client_state_ = client_state::Connected;
         }
 
-        void disconnect() {
+        virtual void disconnect() {
             io_context_.stop();
             if (ctx_thread_.joinable())
                 ctx_thread_.join();
