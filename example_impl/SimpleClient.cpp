@@ -30,7 +30,7 @@ int main() {
             if (client.get_state() == ammo::role::client_state::Pending) {
                 std::this_thread::sleep_for(std::chrono::seconds(1));
                 if (client.get_incoming_messages().empty())
-                    client.send_validation();
+                    client.send_request();
                 else {
                     auto msg = client.get_incoming_messages().pop_front();
                     if (msg.message.header.id == Name) {
@@ -38,7 +38,6 @@ int main() {
                         std::cout << "[INFO] Connected to server!" << std::endl;
                     }
                 }
-
             }
             if (client.connected()) {
                 if (!client.get_incoming_messages().empty()) {
