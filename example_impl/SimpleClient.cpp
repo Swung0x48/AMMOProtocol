@@ -9,7 +9,7 @@ enum PacketType: uint32_t {
 
 class SimpleClient: public ammo::role::client<PacketType> {
 public:
-    void send_validation() override {
+    void send_request() override {
         ammo::common::message<PacketType> msg;
         ammo::entity::string<PacketType> name = "Test";
         msg.header.id = Name;
