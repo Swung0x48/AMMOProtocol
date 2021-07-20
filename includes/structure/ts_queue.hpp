@@ -85,7 +85,7 @@ namespace ammo::structure {
         template<class Rep, class Period>
         std::cv_status wait_for(const std::chrono::duration<Rep, Period>& rel_time) {
             std::cv_status status;
-            while (empty() && !do_tick) {
+            while (empty() && !do_tick && status != std::cv_status::timeout) {
                 std::unique_lock <std::mutex> lk(to_update_mtx_);
                 status = to_update_cv_.wait_for(lk, rel_time);
             }
