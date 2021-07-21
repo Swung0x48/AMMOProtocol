@@ -51,7 +51,8 @@ namespace ammo::role {
                     ctx_thread_ = std::thread([this]() { io_context_.run(); });
                     ctx_started_ = true;
                     update_thread_ = std::thread([this]() {
-                        update(64, true, std::chrono::minutes(5));
+                        while (ctx_started_)
+                            update(64, true, std::chrono::minutes(5));
                     });
                 }
             } catch (std::exception& e) {
@@ -83,6 +84,7 @@ namespace ammo::role {
 
         virtual void shutdown() {
             if (ctx_started_) {
+                ctx_started_ = false;
                 io_context_.stop();
                 if (ctx_thread_.joinable())
                     ctx_thread_.join();
@@ -91,8 +93,6 @@ namespace ammo::role {
                     update_thread_.join();
                 socket_.close();
             }
-
-            ctx_started_ = false;
         }
 
         template<class Rep, class Period>
