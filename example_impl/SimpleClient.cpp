@@ -80,7 +80,7 @@ int main() {
             break;
         }
     }
-    client.disconnect();
+    client.shutdown();
     if (thread.joinable())
         thread.join();
 }
