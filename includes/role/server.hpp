@@ -39,7 +39,9 @@ namespace ammo::role {
         }
 
         template<class Rep, class Period>
-        std::cv_status update(size_t max_message_count = -1, bool wait = true, const std::chrono::duration<Rep, Period>& rel_time = std::chrono::steady_clock::duration::zero()) {
+        std::cv_status update(size_t max_message_count = -1,
+                              bool wait = true,
+                              const std::chrono::duration<Rep, Period>& rel_time = std::chrono::steady_clock::duration::zero()) {
             auto status = std::cv_status::no_timeout;
             if (wait) {
                 if (rel_time == std::chrono::steady_clock::duration::zero())

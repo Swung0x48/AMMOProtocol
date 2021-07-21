@@ -12,6 +12,7 @@ namespace ammo::role {
         asio::io_context io_context_;
         std::thread ctx_thread_;
         std::atomic_bool ctx_started_ = false;
+        std::thread update_thread_;
         asio::ip::udp::socket socket_;
         ammo::network::receiver<T> receiver_;
         ammo::network::sender<T> sender_;
@@ -23,12 +24,13 @@ namespace ammo::role {
         ammo::structure::ts_queue<ammo::common::owned_message<T>> outgoing_messages_;
 
     protected:
-
         // async
         virtual void connect_to_server() {
             client_state_ = client_state::Pending;
             send_request();
         }
+
+        virtual void on_message(ammo::common::owned_message<T>& message) = 0;
     public:
         client():
         socket_(io_context_),
@@ -48,6 +50,9 @@ namespace ammo::role {
                     receiver_.start_receiving();
                     ctx_thread_ = std::thread([this]() { io_context_.run(); });
                     ctx_started_ = true;
+                    update_thread_ = std::thread([this]() {
+                        update(64, true, std::chrono::minutes(5));
+                    });
                 }
             } catch (std::exception& e) {
                 std::cerr << "Client exception: " << e.what() << std::endl;
@@ -81,14 +86,34 @@ namespace ammo::role {
                 io_context_.stop();
                 if (ctx_thread_.joinable())
                     ctx_thread_.join();
+                incoming_messages_.tick();
+                if (update_thread_.joinable())
+                    update_thread_.join();
                 socket_.close();
             }
 
             ctx_started_ = false;
         }
 
-        ammo::structure::ts_queue<ammo::common::owned_message<T>>& get_incoming_messages() {
-            return incoming_messages_;
+        template<class Rep, class Period>
+        std::cv_status update(size_t max_message_count = -1,
+                              bool wait = true,
+                              const std::chrono::duration<Rep, Period>& rel_time = std::chrono::steady_clock::duration::zero()) {
+            auto status = std::cv_status::no_timeout;
+            if (wait) {
+                if (rel_time == std::chrono::steady_clock::duration::zero())
+                    incoming_messages_.wait();
+                else
+                    status = incoming_messages_.wait_for(rel_time);
+            }
+
+            size_t message_count = 0;
+            while (message_count < max_message_count && !incoming_messages_.empty()) {
+                auto msg = incoming_messages_.pop_front();
+                on_message(msg);
+                ++message_count;
+            }
+            return status;
         }
 
         client_state get_state() {
