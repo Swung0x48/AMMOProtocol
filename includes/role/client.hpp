@@ -11,6 +11,7 @@ namespace ammo::role {
     protected:
         asio::io_context io_context_;
         std::thread ctx_thread_;
+        std::atomic_bool ctx_started_ = false;
         asio::ip::udp::socket socket_;
         ammo::network::receiver<T> receiver_;
         ammo::network::sender<T> sender_;
@@ -22,6 +23,7 @@ namespace ammo::role {
         ammo::structure::ts_queue<ammo::common::owned_message<T>> outgoing_messages_;
 
     protected:
+
         // async
         virtual void connect_to_server() {
             client_state_ = client_state::Pending;
@@ -32,16 +34,21 @@ namespace ammo::role {
         socket_(io_context_),
         receiver_(socket_, incoming_messages_),
         sender_(io_context_, socket_, outgoing_messages_) {
-            socket_.open(asio::ip::udp::v4());
         }
 
         bool connect(const std::string& host, const uint16_t port) {
             try {
+                if (!ctx_started_) {
+                    socket_.open(asio::ip::udp::v4());
+                }
                 asio::ip::udp::resolver resolver(io_context_);
                 server_endpoint_ = *resolver.resolve(host, std::to_string(port)).begin();
                 connect_to_server();
-                receiver_.start_receiving();
-                ctx_thread_ = std::thread([this]() { io_context_.run(); });
+                if (!ctx_started_) {
+                    receiver_.start_receiving();
+                    ctx_thread_ = std::thread([this]() { io_context_.run(); });
+                    ctx_started_ = true;
+                }
             } catch (std::exception& e) {
                 std::cerr << "Client exception: " << e.what() << std::endl;
                 return false;
@@ -65,10 +72,19 @@ namespace ammo::role {
             client_state_ = client_state::Connected;
         }
 
+        virtual void disconnect() {
+            client_state_ = ammo::role::client_state::Disconnected;
+        }
+
         virtual void shutdown() {
-            io_context_.stop();
-            if (ctx_thread_.joinable())
-                ctx_thread_.join();
+            if (ctx_started_) {
+                io_context_.stop();
+                if (ctx_thread_.joinable())
+                    ctx_thread_.join();
+                socket_.close();
+            }
+
+            ctx_started_ = false;
         }
 
         ammo::structure::ts_queue<ammo::common::owned_message<T>>& get_incoming_messages() {
