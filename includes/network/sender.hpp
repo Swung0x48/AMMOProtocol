@@ -27,17 +27,6 @@ namespace ammo::network {
                        });
         }
 
-//        void send_validation(const asio::ip::udp::endpoint& endpoint) {
-//            socket_.async_send_to(asio::buffer("Hello world"), endpoint,
-//                                  [this](const asio::error_code& error, size_t bytes_transferred) {
-//                if (!error) {
-//                    std::cout << "Hello world from send_validation" << std::endl;
-//                    std::cout << "bytes transferred: " << bytes_transferred << std::endl;
-//                } else {
-//                    std::cerr << "[ERR] " << error.message() << std::endl;
-//                }
-//            });
-//        }
     private:
         // async
         void write_message() {
