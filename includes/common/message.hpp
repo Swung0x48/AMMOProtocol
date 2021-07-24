@@ -52,9 +52,6 @@ namespace ammo::common {
         }
 
         bool clear() {
-            if (is_packed())
-                return false;
-
             body.clear();
             header.message_size = 0;
             header.message_state = 0u;
