@@ -6,9 +6,9 @@ namespace ammo::entity {
     struct string: public ammo::entity::entity<T> {
         std::string str;
     public:
-        string<T>() = default;
-        string<T>(std::string& s): str(s) {}
-        string<T>(const char* s): str(s) {}
+        string() = default;
+        string(std::string& s): str(s) {}
+        string(const char* s): str(s) {}
         void serialize(ammo::common::message<T>& packet) override {
             uint64_t length = str.length();
             packet << length;
