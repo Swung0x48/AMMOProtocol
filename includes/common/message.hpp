@@ -52,9 +52,6 @@ namespace ammo::common {
         }
 
         bool clear() {
-            if (is_packed())
-                return false;
-
             body.clear();
             header.message_size = 0;
             header.message_state = 0u;
@@ -68,7 +65,8 @@ namespace ammo::common {
                 return false;
 
             header.message_state = 0u;
-            body.resize(write_position + size);
+            if (body.size() < write_position + size)
+                body.resize(write_position + size);
             std::memcpy(body.data() + write_position, data, size);
             write_position += size;
             return true;

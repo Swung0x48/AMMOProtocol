@@ -52,7 +52,7 @@ namespace ammo::role {
                     ctx_started_ = true;
                     update_thread_ = std::thread([this]() {
                         while (ctx_started_)
-                            update(64, true, std::chrono::minutes(5));
+                            update(64, true, std::chrono::seconds(1));
                     });
                 }
             } catch (std::exception& e) {
@@ -83,15 +83,19 @@ namespace ammo::role {
         }
 
         virtual void shutdown() {
-            if (ctx_started_) {
-                ctx_started_ = false;
-                io_context_.stop();
-                if (ctx_thread_.joinable())
-                    ctx_thread_.join();
-                incoming_messages_.tick();
-                if (update_thread_.joinable())
-                    update_thread_.join();
+            try {
+                if (ctx_started_) {
+                    ctx_started_ = false;
+                    io_context_.stop();
+                    if (ctx_thread_.joinable())
+                        ctx_thread_.join();
+                    incoming_messages_.tick();
+                    if (update_thread_.joinable())
+                        update_thread_.join();
+                }
                 socket_.close();
+            } catch (std::exception& e) {
+
             }
         }
 
