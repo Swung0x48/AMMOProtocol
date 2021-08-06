@@ -18,7 +18,7 @@ namespace ammo::role {
         ammo::network::sender<T> sender_;
         asio::ip::udp::endpoint server_endpoint_;
         client_state client_state_ = client_state::Disconnected;
-        uint16_t sequence_ = 0u;
+        uint32_t sequence_ = 0u;
     private:
         ammo::structure::ts_queue<ammo::common::owned_message<T>> incoming_messages_;
         ammo::structure::ts_queue<ammo::common::owned_message<T>> outgoing_messages_;
