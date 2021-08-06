@@ -33,8 +33,6 @@ namespace ammo::role {
                 std::cerr << "[ERR] Exception: " << e.what() << std::endl;
                 return false;
             }
-
-            std::cout << "[INFO] Server started!\n";
             return true;
         }
 
@@ -63,8 +61,6 @@ namespace ammo::role {
             io_context_.stop();
             if (ctx_thread_.joinable())
                 ctx_thread_.join();
-
-            std::cout << "[INFO] Server Stopped!" << std::endl;
         }
 
         void tick() {
