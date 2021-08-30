@@ -14,14 +14,14 @@ namespace ammo::network {
     template<typename T>
     class receiver {
     private:
-        ammo::structure::ts_queue<ammo::common::owned_message<T>>& incoming_messages_;
+        ammo::structure::ts_queue<ammo::common::owned_message<T>> incoming_messages_;
         std::array<uint8_t, 2 * MAX_PACKET_SIZE> buffer_;
         asio::ip::udp::socket& socket_;
         asio::ip::udp::endpoint current_remote_endpoint_;
         ammo::common::message<T> current_incoming_message_;
     public:
-        receiver(asio::ip::udp::socket& socket, ammo::structure::ts_queue<ammo::common::owned_message<T>>& incoming_messages):
-                socket_(socket), incoming_messages_(incoming_messages) {
+        explicit receiver(asio::ip::udp::socket& socket):
+                socket_(socket) {
 
         }
 
@@ -29,6 +29,10 @@ namespace ammo::network {
 
         virtual void start_receiving() {
             read_message();
+        }
+
+        ammo::structure::ts_queue<ammo::common::owned_message<T>>& get_incoming_messages() {
+            return incoming_messages_;
         }
     private:
         std::string endpoint_to_string(const asio::ip::udp::endpoint& endpoint) {

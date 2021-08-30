@@ -1,11 +1,12 @@
 #ifndef AMMOPROTOCOL_CLIENT_HPP
 #define AMMOPROTOCOL_CLIENT_HPP
+#include "client_state.hpp"
 namespace ammo::role {
-    enum class client_state {
-        Disconnected,
-        Pending,
-        Connected
-    };
+//    enum class client_state {
+//        Disconnected,
+//        Pending,
+//        Connected
+//    };
     template<typename T>
     class client {
     protected:
@@ -19,9 +20,6 @@ namespace ammo::role {
         asio::ip::udp::endpoint server_endpoint_;
         client_state client_state_ = client_state::Disconnected;
         uint32_t sequence_ = 0u;
-    private:
-        ammo::structure::ts_queue<ammo::common::owned_message<T>> incoming_messages_;
-        ammo::structure::ts_queue<ammo::common::owned_message<T>> outgoing_messages_;
 
     protected:
         // async
@@ -34,8 +32,8 @@ namespace ammo::role {
     public:
         client():
         socket_(io_context_),
-        receiver_(socket_, incoming_messages_),
-        sender_(io_context_, socket_, outgoing_messages_) {
+        receiver_(socket_),
+        sender_(io_context_, socket_) {
         }
 
         bool connect(const std::string& host, const uint16_t port) {
@@ -89,7 +87,7 @@ namespace ammo::role {
                     io_context_.stop();
                     if (ctx_thread_.joinable())
                         ctx_thread_.join();
-                    incoming_messages_.tick();
+                    receiver_.get_incoming_messages().tick();
                     if (update_thread_.joinable())
                         update_thread_.join();
                 }
@@ -106,14 +104,14 @@ namespace ammo::role {
             auto status = std::cv_status::no_timeout;
             if (wait) {
                 if (rel_time == std::chrono::steady_clock::duration::zero())
-                    incoming_messages_.wait();
+                    receiver_.get_incoming_messages().wait();
                 else
-                    status = incoming_messages_.wait_for(rel_time);
+                    status = receiver_.get_incoming_messages().wait_for(rel_time);
             }
 
             size_t message_count = 0;
-            while (message_count < max_message_count && !incoming_messages_.empty()) {
-                auto msg = incoming_messages_.pop_front();
+            while (message_count < max_message_count && !receiver_.get_incoming_messages().empty()) {
+                auto msg = receiver_.get_incoming_messages().pop_front();
                 on_message(msg);
                 ++message_count;
             }

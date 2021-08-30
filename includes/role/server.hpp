@@ -9,15 +9,12 @@ namespace ammo::role {
         asio::ip::udp::socket socket_;
         ammo::network::receiver<T> receiver_;
         ammo::network::sender<T> sender_;
-    private:
-        ammo::structure::ts_queue<ammo::common::owned_message<T>> incoming_messages_;
-        ammo::structure::ts_queue<ammo::common::owned_message<T>> outgoing_messages_;
 
     public:
         explicit server(uint16_t port):
             socket_(io_context_, asio::ip::udp::endpoint(asio::ip::udp::v4(), port)),
-            receiver_(socket_, incoming_messages_),
-            sender_(io_context_, socket_, outgoing_messages_) {
+            receiver_(socket_),
+            sender_(io_context_, socket_) {
         }
 
         virtual ~server() {
@@ -43,14 +40,14 @@ namespace ammo::role {
             auto status = std::cv_status::no_timeout;
             if (wait) {
                 if (rel_time == std::chrono::steady_clock::duration::zero())
-                    incoming_messages_.wait();
+                    receiver_.get_incoming_messages().wait();
                 else
-                    status = incoming_messages_.wait_for(rel_time);
+                    status = receiver_.get_incoming_messages().wait_for(rel_time);
             }
 
             size_t message_count = 0;
-            while (message_count < max_message_count && !incoming_messages_.empty()) {
-                auto msg = incoming_messages_.pop_front();
+            while (message_count < max_message_count && !receiver_.get_incoming_messages().empty()) {
+                auto msg = receiver_.get_incoming_messages().pop_front();
                 on_message(msg);
                 ++message_count;
             }
@@ -64,7 +61,7 @@ namespace ammo::role {
         }
 
         void tick() {
-            incoming_messages_.tick();
+            receiver_.get_incoming_messages().tick();
         }
 
         void send(ammo::common::owned_message<T>& msg) {

@@ -6,12 +6,12 @@ namespace ammo::network {
     template <typename T>
     class sender {
     private:
-        ammo::structure::ts_queue<ammo::common::owned_message<T>>& outgoing_messages_;
+        ammo::structure::ts_queue<ammo::common::owned_message<T>> outgoing_messages_;
         asio::ip::udp::socket& socket_;
         asio::io_context& io_context_;
     public:
-        sender(asio::io_context& io_context, asio::ip::udp::socket& socket, ammo::structure::ts_queue<ammo::common::owned_message<T>>& outgoing_messages):
-                io_context_(io_context), socket_(socket), outgoing_messages_(outgoing_messages) {
+        sender(asio::io_context& io_context, asio::ip::udp::socket& socket):
+                io_context_(io_context), socket_(socket) {
 
         }
 
