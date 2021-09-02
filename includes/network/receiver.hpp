@@ -21,9 +21,7 @@ namespace ammo::network {
         ammo::common::message<T> current_incoming_message_;
     public:
         explicit receiver(asio::ip::udp::socket& socket):
-                socket_(socket) {
-
-        }
+                socket_(socket) {}
 
         virtual ~receiver() = default;
 

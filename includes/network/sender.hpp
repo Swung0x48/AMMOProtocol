@@ -18,13 +18,12 @@ namespace ammo::network {
         virtual ~sender() = default;
 
         void send(const ammo::common::owned_message<T>& msg) {
-            asio::post(io_context_,
-                       [this, msg]() {
-                           bool writing_message = !outgoing_messages_.empty();
-                           outgoing_messages_.push_back(msg);
-                           if (!writing_message)
-                               write_message();
-                       });
+            asio::post(io_context_, [this, msg]() {
+                bool writing_message = !outgoing_messages_.empty();
+                outgoing_messages_.push_back(msg);
+                if (!writing_message)
+                    write_message();
+            });
         }
 
     private:

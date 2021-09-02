@@ -18,6 +18,10 @@ namespace ammo::common {
         T id {};
         uint16_t message_size = 0u;
         uint8_t message_state = 0u;
+
+        uint32_t last_acked = 0u;
+        uint32_t ack_bitmap = 0u;
+        uint64_t send_time = 0u;
     };
 
     template <typename T>
@@ -37,6 +41,16 @@ namespace ammo::common {
 
     public:
         message() = default;
+
+        static inline bool sequence_greater_than(T s1, T s2) {
+            static_assert(std::is_unsigned<T>(), "T should be an unsigned integral type.");
+            return ((s1 > s2) && (s1 - s2 <= std::numeric_limits<T>::max() / 2)) ||
+                   ((s1 < s2) && (s2 - s1 > std::numeric_limits<T>::max() / 2));
+        }
+
+        [[nodiscard]] static inline T sequence_max(T s1, T s2) {
+            return sequence_greater_than(s1, s2) ? s1 : s2;
+        }
 
         message(const uint8_t* buffer, size_t size) {
             if (size < sizeof(message_header<T>) || buffer == nullptr)
