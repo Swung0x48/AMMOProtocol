@@ -2,11 +2,6 @@
 #define AMMOPROTOCOL_CLIENT_HPP
 #include "client_state.hpp"
 namespace ammo::role {
-//    enum class client_state {
-//        Disconnected,
-//        Pending,
-//        Connected
-//    };
     template<typename T>
     class client {
     protected:
