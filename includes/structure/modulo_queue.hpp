@@ -18,7 +18,7 @@ public:
     const_iterator cend() const { return entries.cend(); }
 
     std::optional<T>& operator[](size_t raw_index) {
-        const size_t index = raw_index % Size;
+        const size_t index = ((raw_index % Size) + Size) % Size;
         return entries[index];
     }
 
