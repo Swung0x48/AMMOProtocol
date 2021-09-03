@@ -2,6 +2,7 @@
 #define AMMOPROTOCOL_RELIABLE_CHANNEL_HPP
 
 #include "network.hpp"
+#include <bitset>
 namespace ammo::network {
     template<typename T>
     class reliable_channel: public channel<T> {
