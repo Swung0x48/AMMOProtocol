@@ -37,23 +37,27 @@ namespace ammo::network {
                 on_receive(msg);
                 ++message_count;
             }
+            on_update();
+
             return status;
         }
 
     protected:
         virtual void on_send(ammo::common::owned_message<T>& msg) {
-            msg.message.header.sequence = sequence_++;
+            msg.message.header.sequence = send_sequence_++;
         }
 
         virtual void on_receive(ammo::common::owned_message<T>& msg) {
             on_message(msg);
         }
 
+        virtual void on_update() = 0;
+
         virtual void on_message(ammo::common::owned_message<T>& msg) = 0;
 
         ammo::network::receiver<T> receiver_;
         ammo::network::sender<T> sender_;
-        uint32_t sequence_ = 0u;
+        uint32_t send_sequence_ = 0u;
     };
 }
 

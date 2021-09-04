@@ -4,6 +4,10 @@
 #include "../common/common.hpp"
 #include "../common/common_all.hpp"
 #include "../structure/structure_all.hpp"
+
+#include <bitset>
+#include <algorithm>
+
 #define ASIO_STANDALONE
 #include <asio.hpp>
 #include <asio/ts/buffer.hpp>
