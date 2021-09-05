@@ -15,6 +15,7 @@ namespace ammo::network {
             msg.message.header.last_acked = last_acked_;
             msg.message.header.ack_bitmap = generate_ack_bits(last_acked_);
             msg.message.header.send_time = std::chrono::system_clock::now().time_since_epoch().count();
+            sent_queue_[msg.message.header.sequence] = msg;
         }
 
         void on_receive(ammo::common::owned_message<T>& msg) override {
@@ -29,19 +30,24 @@ namespace ammo::network {
         }
 
         void on_update() override {
+            size_t count = 0;
             for (size_t i = last_not_acked_; i <= last_acked_; ++i) {
+                ++count;
+                if (count > QUEUE_SIZE)
+                    break;
+
                 if (sent_queue_[i] != std::nullopt)
                     channel<T>::sender_.send(sent_queue_[i]);
             }
         }
 
-        void on_acked(uint32_t sequence) = 0;
+        virtual void on_acked(uint32_t sequence) = 0;
 
         constexpr static size_t QUEUE_SIZE = 1024;
         uint32_t last_acked_ = -1;
         uint32_t last_not_acked_ = -1;
-        ammo::structure::modulo_queue<ammo::common::owned_message<T>&, QUEUE_SIZE> sent_queue_;
-        ammo::structure::modulo_queue<ammo::common::owned_message<T>&, QUEUE_SIZE> received_queue_;
+        ammo::structure::modulo_queue<ammo::common::owned_message<T>, QUEUE_SIZE> sent_queue_;
+        ammo::structure::modulo_queue<ammo::common::owned_message<T>, QUEUE_SIZE> received_queue_;
 
     private:
         size_t ack_packets(uint32_t last_acked, uint32_t ack_bitmap) {
