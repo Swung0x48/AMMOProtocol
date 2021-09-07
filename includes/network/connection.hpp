@@ -1,0 +1,61 @@
+#ifndef AMMOPROTOCOL_CONNECTION_HPP
+#define AMMOPROTOCOL_CONNECTION_HPP
+
+#include <event/role_send_event.hpp>
+#include "event/on_message_event.hpp"
+#include "network.hpp"
+#include "channel.hpp"
+#include "reliable_channel.hpp"
+namespace ammo::network {
+    template<typename T>
+    class connection: public std::enable_shared_from_this<connection<T>> {
+    public:
+        explicit connection(event::event_handler& event_handler):
+            main_event_handler_(event_handler),
+            channel_(event_handler_),
+            reliable_channel_(event_handler_) {
+            event_handler_
+                .on<event::connection_on_message_event>(
+                    [this](event::connection_on_message_event<T>& e) {
+                        on_message(e.get_message()); })
+                .template on<event::connection_send_event>(
+                    [this](event::connection_send_event<T>& e) {
+                        main_event_handler_.emit({ this->shared_from_this(), e.get_message() }); });
+        }
+
+        // To channel
+        void on_receive(common::message<T>& msg) {
+            // route message to corresponding channel
+            if (msg.is_reliable())
+                reliable_channel_.on_receive(msg);
+            else
+                channel_.on_receive(msg);
+        }
+
+        // To channel
+        void on_update() {
+            reliable_channel_.on_update();
+        }
+
+        // To channel
+        void on_send(common::message<T>& msg) {
+            if (msg.is_reliable())
+                channel_.send(msg);
+            else
+                reliable_channel_.send(msg);
+        }
+
+        // To role
+        void on_message(common::message<T>& msg) {
+            event::on_message_event e(this->shared_from_this(), msg);
+            main_event_handler_.emit(e);
+        }
+    private:
+        event::event_handler event_handler_;
+        event::event_handler& main_event_handler_;
+        channel<T> channel_;
+        reliable_channel<T> reliable_channel_;
+    };
+}
+
+#endif //AMMOPROTOCOL_CONNECTION_HPP

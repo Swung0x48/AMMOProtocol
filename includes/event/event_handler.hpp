@@ -7,7 +7,7 @@
 #include <typeinfo>
 #include <typeindex>
 
-namespace ammo::common {
+namespace ammo::event {
     class event_handler {
     private:
         class basic_listener {

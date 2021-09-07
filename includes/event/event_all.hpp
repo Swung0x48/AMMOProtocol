@@ -1,0 +1,6 @@
+#ifndef AMMOPROTOCOL_EVENT_ALL_HPP
+#define AMMOPROTOCOL_EVENT_ALL_HPP
+
+#include "event_handler.hpp"
+
+#endif //AMMOPROTOCOL_EVENT_ALL_HPP

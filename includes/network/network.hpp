@@ -7,6 +7,7 @@
 
 #include <bitset>
 #include <algorithm>
+#include <unordered_map>
 
 #define ASIO_STANDALONE
 #include <asio.hpp>

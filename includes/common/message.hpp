@@ -3,11 +3,6 @@
 #include "common.hpp"
 #include "../network/network_all.hpp"
 
-namespace ammo::network {
-    template <typename Data>
-    class connection;
-}
-
 namespace ammo::common {
     template <typename T>
     struct message_header {
@@ -38,6 +33,8 @@ namespace ammo::common {
 //        static constexpr uint32_t end_of_packet_ = 1;
         static constexpr uint8_t PACKED_MASK = 0b00000001;
         static constexpr uint8_t VALIDATED_MASK = 0b00000010;
+        static constexpr uint8_t RELIABLE_MASK = 0b00000100;
+        static constexpr uint8_t ORDERED_MASK = 0b00001000;
 
     public:
         message() = default;
@@ -145,6 +142,14 @@ namespace ammo::common {
 
         bool is_validated() {
             return bool((header.message_state & VALIDATED_MASK) >> 1);
+        }
+
+        bool is_reliable() {
+            return header.message_state & RELIABLE_MASK != 0;
+        }
+
+        bool is_ordered() {
+            return header.message_state & ORDERED_MASK != 0;
         }
 
         bool unpack_and_verify() {
