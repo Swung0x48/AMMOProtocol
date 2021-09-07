@@ -1,6 +1,11 @@
 #ifndef AMMOPROTOCOL_SERVER_SEND_EVENT_HPP
 #define AMMOPROTOCOL_SERVER_SEND_EVENT_HPP
 
+namespace ammo::network {
+    template <typename T>
+    class connection;
+}
+
 namespace ammo::event {
     template <typename T>
     class role_send_event {
