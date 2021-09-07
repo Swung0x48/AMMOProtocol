@@ -145,11 +145,11 @@ namespace ammo::common {
         }
 
         bool is_reliable() {
-            return header.message_state & RELIABLE_MASK != 0;
+            return (header.message_state & RELIABLE_MASK) != 0;
         }
 
         bool is_ordered() {
-            return header.message_state & ORDERED_MASK != 0;
+            return (header.message_state & ORDERED_MASK) != 0;
         }
 
         bool unpack_and_verify() {
