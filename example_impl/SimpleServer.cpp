@@ -13,21 +13,25 @@ public:
     explicit SimpleServer(uint16_t port): ammo::role::server<PacketType>(port) {}
 
 protected:
-    void on_message(ammo::common::owned_message<PacketType>& msg) override {
-        switch (msg.message.header.id) {
+    void on_message(ammo::network::connection<PacketType>& destination, ammo::common::message<PacketType>& msg) override {
+        switch (msg.header.id) {
             case PacketFragment:
                 break;
             case Ping:
                 std::cout << "Rcvd a ping" << std::endl;
-                send(msg);
+                send(destination, msg);
                 break;
             case Name:
                 ammo::entity::string<PacketType> name;
-                name.deserialize(msg.message);
+                name.deserialize(msg);
                 std::cout << "Client identify itself as " << name.str << std::endl;
-                send(msg);
+                send(destination, msg);
                 break;
         }
+    }
+
+    void on_authenticate_message(ammo::common::owned_message<PacketType>& msg) override {
+
     }
 };
 

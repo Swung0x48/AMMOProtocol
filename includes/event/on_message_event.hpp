@@ -11,7 +11,7 @@ namespace ammo::event {
     class on_message_event {
     public:
         explicit on_message_event(
-                std::shared_ptr<network::connection<T>> connection,
+                network::connection<T>& connection,
                 ammo::common::message<T>& msg):
             connection_(connection),
             message_(msg) {}
@@ -20,12 +20,12 @@ namespace ammo::event {
             return message_;
         }
 
-        std::shared_ptr<network::connection<T>> get_connection() {
+        network::connection<T>& get_connection() {
             return connection_;
         }
 
-        std::shared_ptr<ammo::network::connection<T>> connection_;
-        ammo::common::message<T>& message_;
+        network::connection<T>& connection_;
+        common::message<T>& message_;
     };
 }
 

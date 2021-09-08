@@ -7,14 +7,14 @@ namespace ammo::event {
     template <typename T>
     class connection_send_event {
     public:
-        explicit connection_send_event(ammo::common::owned_message<T>& message):
+        explicit connection_send_event(ammo::common::message<T>& message):
             message_(message) {}
 
-        const ammo::common::owned_message<T>& get_message() {
+        ammo::common::message<T>& get_message() {
             return message_;
         }
 
-        ammo::common::owned_message<T>& message_;
+        ammo::common::message<T>& message_;
     };
 }
 

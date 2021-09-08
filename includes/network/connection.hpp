@@ -6,21 +6,25 @@
 #include "network.hpp"
 #include "channel.hpp"
 #include "reliable_channel.hpp"
+#include <memory>
 namespace ammo::network {
     template<typename T>
-    class connection: public std::enable_shared_from_this<connection<T>> {
+    class connection: std::enable_shared_from_this<connection<T>> {
     public:
-        explicit connection(event::event_handler& event_handler):
+        explicit connection(asio::ip::udp::endpoint endpoint, event::event_handler& event_handler):
+            endpoint_(std::move(endpoint)),
             main_event_handler_(event_handler),
             channel_(event_handler_),
             reliable_channel_(event_handler_) {
             event_handler_
-                .on<event::connection_on_message_event>(
+                .on<event::connection_on_message_event<T>>(
                     [this](event::connection_on_message_event<T>& e) {
                         on_message(e.get_message()); })
-                .template on<event::connection_send_event>(
+                .template on<event::connection_send_event<T>>(
                     [this](event::connection_send_event<T>& e) {
-                        main_event_handler_.emit({ this->shared_from_this(), e.get_message() }); });
+                        event::role_send_event<T> ev(this->shared_from_this(), e.get_message());
+                        main_event_handler_.emit(ev);
+                    });
         }
 
         // To channel
@@ -47,11 +51,16 @@ namespace ammo::network {
 
         // To role
         void on_message(common::message<T>& msg) {
-            event::on_message_event e(this->shared_from_this(), msg);
+            event::on_message_event e(*this, msg);
             main_event_handler_.emit(e);
+        }
+
+        asio::ip::udp::endpoint& get_remote() {
+            return endpoint_;
         }
     private:
         event::event_handler event_handler_;
+        asio::ip::udp::endpoint endpoint_;
         event::event_handler& main_event_handler_;
         channel<T> channel_;
         reliable_channel<T> reliable_channel_;

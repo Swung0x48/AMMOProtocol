@@ -22,10 +22,10 @@ namespace ammo::network {
             on_message(msg);
         }
 
-    protected:
-        virtual void on_send(ammo::common::message<T>& msg) {
+        virtual void on_update() {}
 
-        }
+    protected:
+        virtual void on_send(ammo::common::message<T>& msg) {}
 
         virtual void on_message(ammo::common::message<T>& msg) {
             event::connection_on_message_event e(msg);

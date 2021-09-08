@@ -16,16 +16,16 @@ namespace ammo::event {
                 connection_(connection),
                 message_(msg) {}
 
-        const ammo::common::owned_message<T>& get_message() {
+        const ammo::common::message<T>& get_message() {
             return message_;
         }
 
-        std::shared_ptr<network::connection<T>> get_connection() {
+        network::connection<T>& get_connection() {
             return connection_;
         }
 
-        ammo::common::owned_message<T>& message_;
-        std::shared_ptr<ammo::network::connection<T>> connection_;
+        common::message<T>& message_;
+        std::shared_ptr<network::connection<T>> connection_;
     };
 }
 

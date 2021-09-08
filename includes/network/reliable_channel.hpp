@@ -7,6 +7,22 @@ namespace ammo::network {
     template<typename T>
     class reliable_channel: public channel<T> {
     public:
+        explicit reliable_channel(event::event_handler& handler):
+                channel<T>(handler){}
+
+        void on_update() override {
+            size_t count = 0;
+            for (size_t i = last_not_acked_; i <= last_acked_; ++i) {
+                ++count;
+                if (count > QUEUE_SIZE)
+                    break;
+
+                if (sent_queue_[i] != std::nullopt) {
+                    event::connection_send_event e(sent_queue_[i].value().message);
+                    this->event_handler_.emit(e);
+                }
+            }
+        }
     protected:
         void on_send(ammo::common::message<T>& msg) override {
             channel<T>::on_send(msg);
@@ -28,21 +44,6 @@ namespace ammo::network {
 
             // Then pass to user implementation
             channel<T>::on_receive(msg);
-        }
-
-        void on_update() override {
-            size_t count = 0;
-            for (size_t i = last_not_acked_; i <= last_acked_; ++i) {
-                ++count;
-                if (count > QUEUE_SIZE)
-                    break;
-
-                if (sent_queue_[i] != std::nullopt) {
-                    event::connection_send_event e(sent_queue_[i]);
-                    this->event_handler_.emit(e);
-                }
-//                    channel<T>::sender_.send(sent_queue_[i]);
-            }
         }
 
         virtual void on_acked(uint32_t sequence) {

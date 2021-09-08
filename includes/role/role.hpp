@@ -10,19 +10,21 @@ namespace ammo::role {
         explicit role(uint16_t port = 0):
                 socket_(io_context_),
                 receiver_(socket_),
-                sender_(io_context_, socket_) {
+                sender_(io_context_, socket_),
+                connections_() {
             if (port == 0)
                 socket_.open(asio::ip::udp::v4());
             else
                 socket_.bind(asio::ip::udp::endpoint(asio::ip::udp::v4(), port));
 
             event_handler_
-                .on<event::on_message_event>(
-                        [this](event::on_message_event<T>& e) {
-                            on_message(*(e.get_connection()), e.get_message()); })
-                .template on<event::role_send_event>(
-                        [this](event::role_send_event<T>& e) {
-                            commit_send(e.get_message());
+                .template on<event::on_message_event<T>>(
+                        [](event::on_message_event<T>& e) {
+//                            on_message(e.get_connection(), e.get_message());
+                        })
+                .template on<event::role_send_event<T>>(
+                        [](event::role_send_event<T>& e) {
+//                            commit_send({ e.get_connection().get_remote(), e.get_message() });
                         });
         }
 
@@ -30,9 +32,16 @@ namespace ammo::role {
             stop();
         }
 
-        bool start() {
-            receiver_.start_receiving();
-            ctx_thread_ = std::thread([this]() { io_context_.run(); });
+        virtual bool start() {
+            try {
+                receiver_.start_receiving();
+                ctx_thread_ = std::thread([this]() { io_context_.run(); });
+            } catch (std::exception& e) {
+                std::cerr << "[ERR] Exception occurred on server start.\n";
+                std::cerr << "[ERR] Exception: " << e.what() << std::endl;
+                return false;
+            }
+            return true;
         }
 
         void stop() {
@@ -65,10 +74,24 @@ namespace ammo::role {
             return status;
         }
 
-        void send(ammo::network::connection<T>& connection, ammo::common::message<T>& msg) = 0;
+        virtual void send(network::connection<T>& destination, common::message<T>& msg) {
+            destination.on_send(msg);
+        }
+
+        virtual void accept_connection(asio::ip::udp::endpoint& endpoint) {
+            connections_.emplace(endpoint, std::make_shared<ammo::network::connection<T>>(endpoint, event_handler_));
+        }
     protected:
-        virtual void on_receive(ammo::common::owned_message<T>& msg) = 0;
-        virtual void on_message(ammo::network::connection<T>& connection, ammo::common::message<T>& msg) = 0;
+        virtual void on_receive(ammo::common::owned_message<T>& msg) {
+            if (!connections_.contains(msg.remote)) [[unlikely]] {
+                on_authenticate_message(msg);
+            }
+
+            connections_[msg.remote]->on_receive(msg.message);
+        }
+
+        virtual void on_authenticate_message(ammo::common::owned_message<T>& msg) = 0;
+        virtual void on_message(network::connection<T>& destination, common::message<T>& msg) = 0;
         virtual void on_update() = 0;
 
         void commit_send(ammo::common::owned_message<T>& msg) {
@@ -84,6 +107,7 @@ namespace ammo::role {
         ammo::network::receiver<T> receiver_;
         ammo::network::sender<T> sender_;
         ammo::event::event_handler event_handler_;
+        std::unordered_map<asio::ip::udp::endpoint, std::shared_ptr<ammo::network::connection<T>>> connections_;
     };
 }
 
