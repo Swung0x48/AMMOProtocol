@@ -9,22 +9,22 @@ enum PacketType: uint32_t {
 
 class SimpleClient: public ammo::role::client<PacketType> {
 public:
-    void send_request() override {
+    void send_request(ammo::network::connection<PacketType>& server_connection) override {
         ammo::common::message<PacketType> msg;
         ammo::entity::string<PacketType> name = "Test";
         msg.header.id = Name;
         name.serialize(msg);
-        send(msg);
+        send(server_connection, msg);
     }
 
-    void on_message(ammo::common::owned_message<PacketType>& msg) override {
-        switch (msg.message.header.id) {
+    void on_message(ammo::network::connection<PacketType>& destination, ammo::common::message<PacketType>& msg) override {
+        switch (msg.header.id) {
             case PacketType::PacketFragment: {
                 break;
             }
             case PacketType::Ping: {
                 auto now = std::chrono::system_clock::now().time_since_epoch().count();
-                uint64_t then; msg.message >> then;
+                uint64_t then; msg >> then;
                 auto ping = (now - then) / 1000;
                 std::cout << "[INFO] Ping: " << ping << " ms" << std::endl;
                 break;
@@ -35,10 +35,19 @@ public:
                 break;
             }
             default: {
-                std::cout << "[WARN] Unknown packet type: " << msg.message.header.id << std::endl;
+                std::cout << "[WARN] Unknown packet type: " << msg.header.id << std::endl;
                 break;
             }
         }
+    }
+
+protected:
+    void on_authenticate_message(ammo::common::owned_message<PacketType>& msg) override {
+
+    }
+
+    void on_update() override {
+
     }
 };
 
@@ -46,8 +55,6 @@ int main() {
     SimpleClient client;
     if (client.connect("127.0.0.1", 50000))
         std::cout << "[INFO] Connecting to server..." << std::endl;
-
-    client.send_request();
 
     while (true) {
         int a; std::cin >> a;
@@ -57,10 +64,9 @@ int main() {
             auto now = std::chrono::system_clock::now().time_since_epoch().count();
             msg << now;
 //            msg.pack();
-            client.send(msg);
+            client.send(client.get_server_connection(), msg);
         } else if (a == 2) {
             break;
         }
     }
-    client.shutdown();
 }

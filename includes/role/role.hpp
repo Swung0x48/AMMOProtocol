@@ -12,19 +12,20 @@ namespace ammo::role {
                 receiver_(socket_),
                 sender_(io_context_, socket_),
                 connections_() {
-            if (port == 0)
                 socket_.open(asio::ip::udp::v4());
-            else
+
+            if (port != 0)
                 socket_.bind(asio::ip::udp::endpoint(asio::ip::udp::v4(), port));
 
             event_handler_
                 .template on<event::on_message_event<T>>(
-                        [](event::on_message_event<T>& e) {
-//                            on_message(e.get_connection(), e.get_message());
+                        [this](event::on_message_event<T>& e) {
+                            on_message(e.get_connection(), e.get_message());
                         })
                 .template on<event::role_send_event<T>>(
-                        [](event::role_send_event<T>& e) {
-//                            commit_send({ e.get_connection().get_remote(), e.get_message() });
+                        [this](event::role_send_event<T>& e) {
+                            common::owned_message<T> msg = { e.get_connection().get_remote(), e.get_message() };
+                            commit_send(msg);
                         });
         }
 

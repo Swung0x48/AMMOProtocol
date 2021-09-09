@@ -14,14 +14,16 @@ namespace ammo::event {
                 std::shared_ptr<network::connection<T>> connection,
                 ammo::common::message<T>& msg):
                 connection_(connection),
-                message_(msg) {}
+                message_(msg) {
+            std::cout << "role_send_event ctor" << std::endl;
+        }
 
         const ammo::common::message<T>& get_message() {
             return message_;
         }
 
         network::connection<T>& get_connection() {
-            return connection_;
+            return *(connection_);
         }
 
         common::message<T>& message_;

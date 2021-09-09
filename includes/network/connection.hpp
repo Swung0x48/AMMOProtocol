@@ -19,11 +19,14 @@ namespace ammo::network {
             event_handler_
                 .on<event::connection_on_message_event<T>>(
                     [this](event::connection_on_message_event<T>& e) {
-                        on_message(e.get_message()); })
-                .template on<event::connection_send_event<T>>(
+                        on_message(e.get_message());
+                        std::cout << "[DEBUG] Emitting on_message event to server" << std::endl;
+                    })
+            .template on<event::connection_send_event<T>>(
                     [this](event::connection_send_event<T>& e) {
                         event::role_send_event<T> ev(this->shared_from_this(), e.get_message());
                         main_event_handler_.emit(ev);
+                        std::cout << "[DEBUG] Emitting send event to server" << std::endl;
                     });
         }
 
@@ -44,9 +47,9 @@ namespace ammo::network {
         // To channel
         void on_send(common::message<T>& msg) {
             if (msg.is_reliable())
-                channel_.send(msg);
-            else
                 reliable_channel_.send(msg);
+            else
+                channel_.send(msg);
         }
 
         // To role

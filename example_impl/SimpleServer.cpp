@@ -53,6 +53,8 @@ int main() {
         }
     });
 
+    std::cout << "[INFO] Server started!" << std::endl;
+
     while (true) {
         std::string cmd;
         std::cin >> cmd;
