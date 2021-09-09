@@ -80,8 +80,10 @@ namespace ammo::role {
             destination.on_send(msg);
         }
 
-        virtual void accept_connection(asio::ip::udp::endpoint& endpoint) {
-            connections_.emplace(endpoint, std::make_shared<ammo::network::connection<T>>(endpoint, event_handler_));
+        virtual network::connection<T>& accept_connection(asio::ip::udp::endpoint& endpoint) {
+            std::shared_ptr<network::connection<T>> connection = std::make_shared<ammo::network::connection<T>>(endpoint, event_handler_);
+            connections_.emplace(endpoint, connection);
+            return *connection;
         }
     protected:
         virtual void on_receive(ammo::common::owned_message<T>& msg) {

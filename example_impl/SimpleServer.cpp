@@ -31,7 +31,19 @@ protected:
     }
 
     void on_authenticate_message(ammo::common::owned_message<PacketType>& msg) override {
-
+        switch (msg.message.header.id) {
+            case PacketFragment:
+                break;
+            case Name: {
+                ammo::entity::string<PacketType> name;
+                name.deserialize(msg.message);
+                std::cout << "Client identify itself as " << name.str << std::endl;
+                send(accept_connection(msg.remote), msg.message);
+                break;
+            }
+            default:
+                break;
+        }
     }
 };
 

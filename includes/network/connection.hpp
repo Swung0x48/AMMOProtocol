@@ -24,9 +24,7 @@ namespace ammo::network {
                     })
             .template on<event::connection_send_event<T>>(
                     [this](event::connection_send_event<T>& e) {
-                        common::message<T> ref = e.get_message();
-                        connection<T>& p = *this;
-                        event::role_send_event<T> ev(p, ref);
+                        event::role_send_event<T> ev(*this, e.get_message());
                         main_event_handler_.emit(ev);
                         std::cout << "[DEBUG] Emitting send event to server" << std::endl;
                     });
