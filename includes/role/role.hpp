@@ -39,7 +39,8 @@ namespace ammo::role {
                 ctx_thread_ = std::thread([this]() { io_context_.run(); });
                 update_thread_ = std::thread([this]() {
                     while (!io_context_.stopped()) {
-                        update(64, true, std::chrono::minutes(1));
+//                        update(64, true, std::chrono::minutes(1));
+                        update(64, false);
                     }
                 });
             } catch (std::exception& e) {
@@ -57,7 +58,7 @@ namespace ammo::role {
                 ctx_thread_.join();
         }
 
-        template<class Rep, class Period>
+        template<class Rep = std::chrono::steady_clock::rep, class Period = std::chrono::steady_clock::period>
         std::cv_status update(size_t max_message_count = -1,
                               bool wait = true,
                               const std::chrono::duration<Rep, Period>& rel_time = std::chrono::steady_clock::duration::zero()) {
@@ -75,7 +76,7 @@ namespace ammo::role {
                 on_receive(msg);
                 ++message_count;
             }
-            on_update();
+            on_update_internal();
 
             return status;
         }
@@ -105,6 +106,13 @@ namespace ammo::role {
         virtual void on_authenticate_message(ammo::common::owned_message<T>& msg) = 0;
         virtual void on_message(network::connection<T>& destination, common::message<T>& msg) = 0;
         virtual void on_update() = 0;
+        virtual void on_update_internal() {
+            for (auto [_, connection]: role<T>::connections_) {
+                connection->on_update();
+            }
+            on_update();
+        }
+
 
         void commit_send(ammo::common::owned_message<T>& msg) {
             if (msg.message.is_packed())

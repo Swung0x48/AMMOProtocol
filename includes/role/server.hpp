@@ -16,14 +16,6 @@ namespace ammo::role {
         void tick() {
             role<T>::receiver_.get_incoming_messages().tick();
         }
-
-    protected:
-        virtual void on_update() {
-            for (auto [_, connection]: role<T>::connections_) {
-                connection->on_update();
-            }
-        }
-    protected:
     };
 }
 
