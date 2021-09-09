@@ -18,12 +18,12 @@ namespace ammo::network {
                     break;
 
                 if (sent_queue_[i] != std::nullopt) {
-                    event::connection_send_event e(sent_queue_[i].value().message);
+                    event::connection_send_event e(sent_queue_[i].value());
                     this->event_handler_.emit(e);
                 }
             }
         }
-    protected:
+
         void on_send(ammo::common::message<T>& msg) override {
             channel<T>::on_send(msg);
 
@@ -86,8 +86,8 @@ namespace ammo::network {
         uint32_t send_sequence_ = 0u;
         uint32_t last_acked_ = -1;
         uint32_t last_not_acked_ = -1;
-        ammo::structure::modulo_queue<ammo::common::owned_message<T>, QUEUE_SIZE> sent_queue_;
-        ammo::structure::modulo_queue<ammo::common::owned_message<T>, QUEUE_SIZE> received_queue_;
+        ammo::structure::modulo_queue<ammo::common::message<T>, QUEUE_SIZE> sent_queue_;
+        ammo::structure::modulo_queue<ammo::common::message<T>, QUEUE_SIZE> received_queue_;
 
     };
 }
