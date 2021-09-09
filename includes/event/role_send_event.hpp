@@ -11,7 +11,7 @@ namespace ammo::event {
     class role_send_event {
     public:
         explicit role_send_event(
-                std::shared_ptr<network::connection<T>> connection,
+                network::connection<T>& connection,
                 ammo::common::message<T>& msg):
                 connection_(connection),
                 message_(msg) {
@@ -23,11 +23,11 @@ namespace ammo::event {
         }
 
         network::connection<T>& get_connection() {
-            return *(connection_);
+            return connection_;
         }
 
         common::message<T>& message_;
-        std::shared_ptr<network::connection<T>> connection_;
+        network::connection<T>& connection_;
     };
 }
 

@@ -19,7 +19,7 @@ namespace ammo::network {
         }
 
         virtual void on_receive(ammo::common::message<T>& msg) {
-            on_message(msg);
+            this->on_message(msg);
         }
 
         virtual void on_update() {}

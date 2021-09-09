@@ -43,7 +43,20 @@ public:
 
 protected:
     void on_authenticate_message(ammo::common::owned_message<PacketType>& msg) override {
-
+        switch (msg.message.header.id) {
+            case PacketType::PacketFragment: {
+                break;
+            }
+            case PacketType::Name: {
+                confirm_validation();
+                std::cout << "[INFO] Connected to server!" << std::endl;
+                break;
+            }
+            default: {
+                std::cout << "[WARN] Unknown packet type: " << msg.message.header.id << std::endl;
+                break;
+            }
+        }
     }
 
     void on_update() override {

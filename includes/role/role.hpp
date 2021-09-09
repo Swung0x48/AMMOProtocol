@@ -24,6 +24,7 @@ namespace ammo::role {
                         })
                 .template on<event::role_send_event<T>>(
                         [this](event::role_send_event<T>& e) {
+                            std::cout << "[DEBUG] Committing a send" << std::endl;
                             common::owned_message<T> msg = { e.get_connection().get_remote(), e.get_message() };
                             commit_send(msg);
                         });
@@ -86,6 +87,7 @@ namespace ammo::role {
         virtual void on_receive(ammo::common::owned_message<T>& msg) {
             if (!connections_.contains(msg.remote)) [[unlikely]] {
                 on_authenticate_message(msg);
+                return;
             }
 
             connections_[msg.remote]->on_receive(msg.message);

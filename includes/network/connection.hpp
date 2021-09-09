@@ -9,7 +9,7 @@
 #include <memory>
 namespace ammo::network {
     template<typename T>
-    class connection: std::enable_shared_from_this<connection<T>> {
+    class connection {
     public:
         explicit connection(asio::ip::udp::endpoint endpoint, event::event_handler& event_handler):
             endpoint_(std::move(endpoint)),
@@ -24,7 +24,9 @@ namespace ammo::network {
                     })
             .template on<event::connection_send_event<T>>(
                     [this](event::connection_send_event<T>& e) {
-                        event::role_send_event<T> ev(this->shared_from_this(), e.get_message());
+                        common::message<T> ref = e.get_message();
+                        connection<T>& p = *this;
+                        event::role_send_event<T> ev(p, ref);
                         main_event_handler_.emit(ev);
                         std::cout << "[DEBUG] Emitting send event to server" << std::endl;
                     });

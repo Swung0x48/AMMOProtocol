@@ -44,11 +44,15 @@ target_link_libraries(test_entity_serialization gtest_main)
 add_executable(test_modulo_queue tests/test_modulo_queue.cpp)
 target_link_libraries(test_modulo_queue gtest_main)
 
+add_executable(test_reliable_channel tests/test_reliable_channel.cpp)
+target_link_libraries(test_reliable_channel gtest_main)
+
 include(GoogleTest)
 add_test(NAME test_sanity_check COMMAND test_sanity_check)
 add_test(NAME test_packet_rw COMMAND test_packet_rw)
 add_test(NAME test_entity_serialization COMMAND test_entity_serialization)
 add_test(NAME test_modulo_queue COMMAND test_modulo_queue)
+add_test(NAME test_reliable_channel COMMAND test_reliable_channel)
 
 include_directories(submodules/asio)
 include_directories(submodules/crc32)
