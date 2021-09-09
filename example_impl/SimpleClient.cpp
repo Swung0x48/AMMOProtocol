@@ -9,12 +9,13 @@ enum PacketType: uint32_t {
 
 class SimpleClient: public ammo::role::client<PacketType> {
 public:
-    void send_request(ammo::network::connection<PacketType>& server_connection) override {
+    void send_request() override {
         ammo::common::message<PacketType> msg;
         ammo::entity::string<PacketType> name = "Test";
         msg.header.id = Name;
         name.serialize(msg);
-        send(server_connection, msg);
+        ammo::common::owned_message<PacketType> omsg {server_endpoint_, msg};
+        commit_send(omsg);
     }
 
     void on_message(ammo::network::connection<PacketType>& destination, ammo::common::message<PacketType>& msg) override {
@@ -76,8 +77,7 @@ int main() {
             msg.header.id = Ping;
             auto now = std::chrono::system_clock::now().time_since_epoch().count();
             msg << now;
-//            msg.pack();
-            client.send(client.get_server_connection(), msg);
+            client.send(*client.get_server_connection(), msg);
         } else if (a == 2) {
             break;
         }

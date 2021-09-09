@@ -15,7 +15,6 @@ namespace ammo::event {
                 ammo::common::message<T>& msg):
                 connection_(connection),
                 message_(msg) {
-            std::cout << "role_send_event ctor" << std::endl;
         }
 
         const ammo::common::message<T>& get_message() {

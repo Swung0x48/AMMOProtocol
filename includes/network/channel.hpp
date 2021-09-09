@@ -30,7 +30,6 @@ namespace ammo::network {
         virtual void on_message(ammo::common::message<T>& msg) {
             event::connection_on_message_event e(msg);
             event_handler_.emit(e);
-            std::cout << "[DEBUG] Emitting on_message event to connection" << std::endl;
         }
         event::event_handler& event_handler_;
     };

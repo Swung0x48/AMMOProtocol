@@ -54,16 +54,16 @@ void do_idle_work() {
 int main() {
     SimpleServer server(50000);
     server.start();
-    std::atomic_bool updating = true;
+//    std::atomic_bool updating = true;
 
-    std::thread update_thread([&server, &updating] () {
-        while (updating) {
-            auto status = server.update(64, true, std::chrono::minutes(5));
-            if (status == std::cv_status::timeout) {
-                do_idle_work();
-            }
-        }
-    });
+//    std::thread update_thread([&server, &updating] () {
+//        while (updating) {
+//            auto status = server.update(64, true, std::chrono::minutes(5));
+//            if (status == std::cv_status::timeout) {
+//                do_idle_work();
+//            }
+//        }
+//    });
 
     std::cout << "[INFO] Server started!" << std::endl;
 
@@ -72,10 +72,10 @@ int main() {
         std::cin >> cmd;
         if (cmd == "/stop") {
             server.stop();
-            updating = false;
+//            updating = false;
             server.tick();
-            if (update_thread.joinable())
-                update_thread.join();
+//            if (update_thread.joinable())
+//                update_thread.join();
             return 0;
         }
     }

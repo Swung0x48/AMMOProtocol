@@ -24,7 +24,6 @@ namespace ammo::role {
                         })
                 .template on<event::role_send_event<T>>(
                         [this](event::role_send_event<T>& e) {
-                            std::cout << "[DEBUG] Committing a send" << std::endl;
                             common::owned_message<T> msg = { e.get_connection().get_remote(), e.get_message() };
                             commit_send(msg);
                         });
@@ -38,6 +37,11 @@ namespace ammo::role {
             try {
                 receiver_.start_receiving();
                 ctx_thread_ = std::thread([this]() { io_context_.run(); });
+                update_thread_ = std::thread([this]() {
+                    while (!io_context_.stopped()) {
+                        update(64, true, std::chrono::minutes(1));
+                    }
+                });
             } catch (std::exception& e) {
                 std::cerr << "[ERR] Exception occurred on server start.\n";
                 std::cerr << "[ERR] Exception: " << e.what() << std::endl;
@@ -81,6 +85,9 @@ namespace ammo::role {
         }
 
         virtual network::connection<T>& accept_connection(asio::ip::udp::endpoint& endpoint) {
+            if (connections_.contains(endpoint))
+                return *(connections_[endpoint]);
+
             std::shared_ptr<network::connection<T>> connection = std::make_shared<ammo::network::connection<T>>(endpoint, event_handler_);
             connections_.emplace(endpoint, connection);
             return *connection;
@@ -108,6 +115,7 @@ namespace ammo::role {
     protected:
         asio::io_context io_context_;
         std::thread ctx_thread_;
+        std::thread update_thread_;
         asio::ip::udp::socket socket_;
         ammo::network::receiver<T> receiver_;
         ammo::network::sender<T> sender_;
