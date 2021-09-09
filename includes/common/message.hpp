@@ -148,6 +148,20 @@ namespace ammo::common {
             return (header.message_state & RELIABLE_MASK) != 0;
         }
 
+        void set_reliable(bool value) {
+            if (value)
+                header.message_state |= RELIABLE_MASK;
+            else
+                header.message_state &= (~RELIABLE_MASK);
+        }
+
+        void set_ordered(bool value) {
+            if (value)
+                header.message_state |= ORDERED_MASK;
+            else
+                header.message_state &= (~ORDERED_MASK);
+        }
+
         bool is_ordered() {
             return (header.message_state & ORDERED_MASK) != 0;
         }
