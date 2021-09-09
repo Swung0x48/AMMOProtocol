@@ -11,7 +11,6 @@ enum PacketType: uint32_t {
 class SimpleServer: public ammo::role::server<PacketType> {
 public:
     explicit SimpleServer(uint16_t port): ammo::role::server<PacketType>(port) {}
-
 protected:
     void on_message(ammo::network::connection<PacketType>& destination, ammo::common::message<PacketType>& msg) override {
         switch (msg.header.id) {
@@ -45,11 +44,11 @@ protected:
                 break;
         }
     }
-};
 
-void do_idle_work() {
-    // Do something here when the server is idle. (Regular cleanup/checkup etc.)
-}
+    void on_update() override {
+
+    }
+};
 
 int main() {
     SimpleServer server(50000);

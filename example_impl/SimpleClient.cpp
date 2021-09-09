@@ -77,6 +77,7 @@ int main() {
             msg.header.id = Ping;
             auto now = std::chrono::system_clock::now().time_since_epoch().count();
             msg << now;
+            msg.set_reliable(true);
             client.send(*client.get_server_connection(), msg);
         } else if (a == 2) {
             break;
