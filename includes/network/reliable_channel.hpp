@@ -28,7 +28,7 @@ namespace ammo::network {
             channel<T>::on_send(msg);
 
             // Populate the missing part of the packet(especially sequence)
-            msg.header.sequence = send_sequence_++;
+            msg.header.sequence = ++send_sequence_;
 
             // Then run ack algorithm
             populate_header_ack_on_send(msg);
@@ -42,12 +42,34 @@ namespace ammo::network {
 //            rcvd_sequence_ = msg.header.last_acked;
             ack_packets(msg.header.last_acked, msg.header.ack_bitmap);
 
+#ifdef DEBUG
+            std::cout << "[DEBUG] rcvd queue: ";
+            for (size_t i = 0; i < received_queue_.size(); ++i) {
+                if (received_queue_[i] == std::nullopt)
+                    std::cout << '0';
+                else
+                    std::cout << '1';
+            }
+            std::cout << std::endl;
+
+            std::cout << "[DEBUG] send queue: ";
+            for (size_t i = 0; i < sent_queue_.size(); ++i) {
+                if (sent_queue_[i] == std::nullopt)
+                    std::cout << '0';
+                else
+                    std::cout << '1';
+            }
+            std::cout << std::endl;
+#endif
+
             // Then run base implementation
             channel<T>::on_receive(msg);
         }
 
         virtual void on_acked(uint32_t sequence) {
-
+#ifdef DEBUG
+            std::cout << "[DEBUG] Acked " << sequence << std::endl;
+#endif
         }
 
     private:
@@ -63,8 +85,8 @@ namespace ammo::network {
                 if (bitmap[i] && sent_queue_[last_acked - i] != std::nullopt) {
                     on_acked(last_acked - i);
                     sent_queue_[last_acked - i] = std::nullopt;
-                    last_not_rcvd_ = common::message<T>::sequence_min(last_not_rcvd_, last_acked - i);
-//                    last_not_rcvd_ = std::min(last_not_rcvd_, last_acked - i);
+//                    last_not_rcvd_ = common::message<T>::sequence_min(last_not_rcvd_, last_acked - i);
+                    last_not_rcvd_ = std::min(last_not_rcvd_, last_acked - i);
                 }
             }
 
@@ -76,7 +98,7 @@ namespace ammo::network {
             bitmap.reset();
             for (int i = 0; i < sizeof(uint32_t) * CHAR_BIT; ++i) {
                 if (received_queue_[sequence - i] != std::nullopt && received_queue_[sequence - i])
-                    bitmap.set(sequence - i);
+                    bitmap.set(i);
             }
 
             return uint32_t(bitmap.to_ulong());
