@@ -12,7 +12,7 @@ namespace ammo::network {
 
         void on_update() override {
             size_t count = 0;
-            for (size_t i = last_not_acked_; i <= last_acked_; ++i) {
+            for (size_t i = last_not_rcvd_; i <= rcvd_sequence_; ++i) {
                 ++count;
                 if (count > QUEUE_SIZE)
                     break;
@@ -37,12 +37,12 @@ namespace ammo::network {
 
         void on_receive(ammo::common::message<T>& msg) override {
             // Run ack algorithm first
-            msg.header.sequence = last_acked_;
+            rcvd_sequence_ = msg.header.sequence;
             received_queue_[msg.header.sequence] = msg;
-            last_acked_ = msg.header.last_acked;
+//            rcvd_sequence_ = msg.header.last_acked;
             ack_packets(msg.header.last_acked, msg.header.ack_bitmap);
 
-            // Then pass to user implementation
+            // Then run base implementation
             channel<T>::on_receive(msg);
         }
 
@@ -52,8 +52,8 @@ namespace ammo::network {
 
     private:
         void populate_header_ack_on_send(ammo::common::message<T>& msg) {
-            msg.header.last_acked = last_acked_;
-            msg.header.ack_bitmap = generate_ack_bits(last_acked_);
+            msg.header.last_acked = rcvd_sequence_;
+            msg.header.ack_bitmap = generate_ack_bits(rcvd_sequence_);
             msg.header.send_time = std::chrono::system_clock::now().time_since_epoch().count();
         }
 
@@ -63,7 +63,8 @@ namespace ammo::network {
                 if (bitmap[i] && sent_queue_[last_acked - i] != std::nullopt) {
                     on_acked(last_acked - i);
                     sent_queue_[last_acked - i] = std::nullopt;
-                    last_not_acked_ = std::min(last_not_acked_, last_acked - i);
+                    last_not_rcvd_ = common::message<T>::sequence_min(last_not_rcvd_, last_acked - i);
+//                    last_not_rcvd_ = std::min(last_not_rcvd_, last_acked - i);
                 }
             }
 
@@ -73,7 +74,7 @@ namespace ammo::network {
         uint32_t generate_ack_bits(uint32_t sequence) {
             std::bitset<sizeof(sequence) * CHAR_BIT> bitmap;
             bitmap.reset();
-            for (int i = 0; i < sizeof(sequence); ++i) {
+            for (int i = 0; i < sizeof(uint32_t) * CHAR_BIT; ++i) {
                 if (received_queue_[sequence - i] != std::nullopt && received_queue_[sequence - i])
                     bitmap.set(sequence - i);
             }
@@ -83,10 +84,14 @@ namespace ammo::network {
 
     protected:
         constexpr static size_t QUEUE_SIZE = 1024;
+
+        // tx
         uint32_t send_sequence_ = 0u;
-        uint32_t last_acked_ = -1;
-        uint32_t last_not_acked_ = -1;
         ammo::structure::modulo_queue<ammo::common::message<T>, QUEUE_SIZE> sent_queue_;
+
+        // rx
+        uint32_t rcvd_sequence_ = 0u;
+        uint32_t last_not_rcvd_ = 0u;
         ammo::structure::modulo_queue<ammo::common::message<T>, QUEUE_SIZE> received_queue_;
 
     };
