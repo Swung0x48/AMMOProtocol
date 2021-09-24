@@ -24,17 +24,6 @@ namespace ammo::network {
             }
         }
 
-        void on_send(ammo::common::message<T>& msg) override {
-            channel<T>::on_send(msg);
-
-            // Populate the missing part of the packet(especially sequence)
-            msg.header.sequence = ++send_sequence_;
-
-            // Then run ack algorithm
-            populate_header_ack_on_send(msg);
-            sent_queue_[msg.header.sequence] = msg;
-        }
-
         void on_receive(ammo::common::message<T>& msg) override {
             // Run ack algorithm first
             rcvd_sequence_ = msg.header.sequence;
@@ -64,6 +53,18 @@ namespace ammo::network {
 
             // Then run base implementation
             channel<T>::on_receive(msg);
+        }
+
+    protected:
+        void on_send(ammo::common::message<T>& msg) override {
+            channel<T>::on_send(msg);
+
+            // Populate the missing part of the packet(especially sequence)
+            msg.header.sequence = ++send_sequence_;
+
+            // Then run ack algorithm
+            populate_header_ack_on_send(msg);
+            sent_queue_[msg.header.sequence] = msg;
         }
 
         virtual void on_acked(uint32_t sequence) {
