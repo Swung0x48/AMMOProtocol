@@ -4,7 +4,8 @@
 enum PacketType: uint32_t {
     PacketFragment,
     Ping,
-    Name
+    Name,
+    Count
 };
 
 class SimpleClient: public ammo::role::client<PacketType> {
@@ -27,13 +28,14 @@ public:
                 auto now = std::chrono::system_clock::now().time_since_epoch().count();
                 uint64_t then; msg >> then;
                 auto ping = (now - then) / 1000;
+                std::cout << msg.header.sequence << std::endl;
+                std::cout << msg.header.last_acked << std::endl;
+                std::cout << std::bitset<sizeof(msg.header.ack_bitmap) * CHAR_BIT>(msg.header.ack_bitmap) << std::endl;
                 std::cout << "[INFO] Ping: " << ping << " ms" << std::endl;
                 break;
             }
-            case PacketType::Name: {
-                confirm_validation();
-                std::cout << "[INFO] Connected to server!" << std::endl;
-                break;
+            case PacketType::Count: {
+
             }
             default: {
                 std::cout << "[WARN] Unknown packet type: " << msg.header.id << std::endl;
@@ -73,13 +75,21 @@ int main() {
     while (true) {
         int a; std::cin >> a;
         if (a == 1) {
+            for (int i = 0; i < 50; ++i) {
+                ammo::common::message<PacketType> msg;
+                msg.header.id = Count;
+                msg << i;
+                msg.set_reliable(true);
+                client.send(client.get_server_connection(), msg);
+            }
+        } else if (a == 2) {
             ammo::common::message<PacketType> msg;
             msg.header.id = Ping;
             auto now = std::chrono::system_clock::now().time_since_epoch().count();
             msg << now;
             msg.set_reliable(true);
-            client.send(*client.get_server_connection(), msg);
-        } else if (a == 2) {
+            client.send(client.get_server_connection(), msg);
+        }  else {
             break;
         }
     }

@@ -40,7 +40,7 @@ namespace ammo::role {
                 update_thread_ = std::thread([this]() {
                     while (!io_context_.stopped()) {
 //                        update(64, true, std::chrono::minutes(1));
-                        update(64, false);
+                        update(64, true, std::chrono::minutes(1));
                     }
                 });
             } catch (std::exception& e) {
@@ -56,6 +56,8 @@ namespace ammo::role {
                 io_context_.stop();
             if (ctx_thread_.joinable())
                 ctx_thread_.join();
+            if (update_thread_.joinable())
+                update_thread_.join();
         }
 
         template<class Rep = std::chrono::steady_clock::rep, class Period = std::chrono::steady_clock::period>
@@ -95,7 +97,7 @@ namespace ammo::role {
         }
     protected:
         virtual void on_receive(ammo::common::owned_message<T>& msg) {
-            if (!connections_.contains(msg.remote)) [[unlikely]] {
+            if (!connections_.contains(msg.remote)) [[ unlikely ]] {
                 on_authenticate_message(msg);
                 return;
             }

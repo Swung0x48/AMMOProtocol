@@ -5,7 +5,8 @@
 enum PacketType: uint32_t {
     PacketFragment,
     Ping,
-    Name
+    Name,
+    Count
 };
 
 class SimpleServer: public ammo::role::server<PacketType> {
@@ -18,13 +19,16 @@ protected:
                 break;
             case Ping:
                 std::cout << "Rcvd a ping" << std::endl;
+                std::cout << msg.header.sequence << std::endl;
+                std::cout << msg.header.last_acked << std::endl;
+                std::cout << std::bitset<sizeof(msg.header.ack_bitmap) * CHAR_BIT>(msg.header.ack_bitmap) << std::endl;
                 send(destination, msg);
                 break;
-            case Name:
-                ammo::entity::string<PacketType> name;
-                name.deserialize(msg);
-                std::cout << "Client identify itself as " << name.str << std::endl;
-                send(destination, msg);
+            case PacketType::Count: {
+                int tmp; msg >> tmp;
+                count_.emplace_back(tmp);
+            }
+            default:
                 break;
         }
     }
@@ -48,21 +52,18 @@ protected:
     void on_update() override {
 
     }
+
+public:
+    std::vector<int> count_;
 };
 
 int main() {
     SimpleServer server(50000);
     server.start();
-//    std::atomic_bool updating = true;
 
-//    std::thread update_thread([&server, &updating] () {
-//        while (updating) {
-//            auto status = server.update(64, true, std::chrono::minutes(5));
-//            if (status == std::cv_status::timeout) {
-//                do_idle_work();
-//            }
-//        }
-//    });
+#ifdef DEBUG
+    std::cout << "[DEBUG] Now running in debug mode." << std::endl;
+#endif
 
     std::cout << "[INFO] Server started!" << std::endl;
 
@@ -71,11 +72,16 @@ int main() {
         std::cin >> cmd;
         if (cmd == "/stop") {
             server.stop();
-//            updating = false;
             server.tick();
-//            if (update_thread.joinable())
-//                update_thread.join();
             return 0;
+        } else if (cmd == "/show") {
+            std::cout << (server.count_.size() == 50) << std::endl;
+            for (auto i: server.count_) {
+                std::cout << i << ' ';
+            }
+            std::cout << std::endl;
+        } else if (cmd == "/clear") {
+            server.count_.clear();
         }
     }
 }

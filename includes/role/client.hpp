@@ -25,8 +25,10 @@ namespace ammo::role {
             return true;
         }
 
-        std::shared_ptr<network::connection<T>> get_server_connection() {
-            return role<T>::connections_[server_endpoint_];
+        network::connection<T>& get_server_connection() {
+            if (!role<T>::connections_.contains(server_endpoint_))
+                throw std::runtime_error("Not connected to server");
+            return *(role<T>::connections_[server_endpoint_]);
         }
 
         virtual void connect_to_server() {

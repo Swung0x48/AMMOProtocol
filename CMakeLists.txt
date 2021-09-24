@@ -6,6 +6,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 include_directories(submodules/asio/asio/include)
 
+add_compile_options("$<$<CONFIG:DEBUG>:-DDEBUG>")
 include (TestBigEndian)
 TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
 if(IS_BIG_ENDIAN)

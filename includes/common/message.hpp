@@ -49,6 +49,10 @@ namespace ammo::common {
             return sequence_greater_than(s1, s2) ? s1 : s2;
         }
 
+        [[nodiscard]] static inline T sequence_min(T s1, T s2) {
+            return sequence_greater_than(s1, s2) ? s2 : s1;
+        }
+
         message(const uint8_t* buffer, size_t size) {
             if (size < sizeof(message_header<T>) || buffer == nullptr)
                 return;

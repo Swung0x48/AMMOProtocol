@@ -8,6 +8,7 @@ namespace ammo::network {
     template<typename T>
     class channel {
     public:
+        channel() = delete;
         explicit channel(event::event_handler& handler):
                 event_handler_(handler) {}
 
