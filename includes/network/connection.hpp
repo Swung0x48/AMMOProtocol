@@ -45,9 +45,9 @@ namespace ammo::network {
         // To channel
         void on_send(common::message<T>& msg) {
             if (msg.is_reliable())
-                reliable_channel_.send(msg);
+                reliable_channel_.submit_for_send(msg);
             else
-                channel_.send(msg);
+                channel_.submit_for_send(msg);
         }
 
         // To role

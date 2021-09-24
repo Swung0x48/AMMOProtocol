@@ -12,7 +12,7 @@ namespace ammo::network {
         explicit channel(event::event_handler& handler):
                 event_handler_(handler) {}
 
-        void send(ammo::common::message<T>& msg) {
+        void submit_for_send(ammo::common::message<T>& msg) {
             on_send(msg);
 
             event::connection_send_event e(msg);
