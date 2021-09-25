@@ -39,14 +39,26 @@ namespace ammo::common {
     public:
         message() = default;
 
+        static inline bool sequence_greater_than(T s1, T s2, uint64_t wrap) {
+            return ((s1 > s2) && (s1 - s2 <= wrap / 2)) ||
+                   ((s1 < s2) && (s2 - s1 > wrap / 2));
+        }
+
         static inline bool sequence_greater_than(T s1, T s2) {
             static_assert(std::is_unsigned<T>(), "T should be an unsigned integral type.");
-            return ((s1 > s2) && (s1 - s2 <= std::numeric_limits<T>::max() / 2)) ||
-                   ((s1 < s2) && (s2 - s1 > std::numeric_limits<T>::max() / 2));
+            return sequence_greater_than(s1, s2, std::numeric_limits<T>::max());
+        }
+
+        [[nodiscard]] static inline T sequence_max(T s1, T s2, uint64_t wrap) {
+            return sequence_greater_than(s1, s2, wrap) ? s1 : s2;
         }
 
         [[nodiscard]] static inline T sequence_max(T s1, T s2) {
             return sequence_greater_than(s1, s2) ? s1 : s2;
+        }
+
+        [[nodiscard]] static inline T sequence_min(T s1, T s2, uint64_t wrap) {
+            return sequence_greater_than(s1, s2, wrap) ? s2 : s1;
         }
 
         [[nodiscard]] static inline T sequence_min(T s1, T s2) {
