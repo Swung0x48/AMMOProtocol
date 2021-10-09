@@ -5,7 +5,7 @@
 enum PacketType: uint32_t {
     PacketFragment,
     Ping,
-    Name,
+    Hello,
     Count
 };
 
@@ -14,7 +14,7 @@ public:
     explicit SimpleServer(uint16_t port): ammo::role::server<PacketType>(port) {}
 protected:
     void on_message(ammo::network::connection<PacketType>& destination, ammo::common::message<PacketType>& msg) override {
-        switch (msg.header.id) {
+        switch (msg.header.opcode) {
             case PacketFragment:
                 break;
             case Ping:
@@ -34,10 +34,10 @@ protected:
     }
 
     void on_authenticate_message(ammo::common::owned_message<PacketType>& msg) override {
-        switch (msg.message.header.id) {
+        switch (msg.message.header.opcode) {
             case PacketFragment:
                 break;
-            case Name: {
+            case Hello: {
                 ammo::entity::string<PacketType> name;
                 name.deserialize(msg.message);
                 std::cout << "Client identify itself as " << name.str << std::endl;
@@ -58,7 +58,7 @@ public:
 };
 
 int main() {
-    SimpleServer server(50000);
+    SimpleServer server(20352);
     server.start();
 
 #ifdef DEBUG

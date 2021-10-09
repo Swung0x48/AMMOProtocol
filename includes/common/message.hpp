@@ -10,7 +10,7 @@ namespace ammo::common {
         uint32_t begin_of_packet = 0u;
         uint32_t crc32 = 0u;
         uint32_t sequence = 0u;
-        T id {};
+        T opcode {};
         uint16_t message_size = 0u;
         uint8_t message_state = 0u;
 

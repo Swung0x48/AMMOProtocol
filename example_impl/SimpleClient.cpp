@@ -4,7 +4,7 @@
 enum PacketType: uint32_t {
     PacketFragment,
     Ping,
-    Name,
+    Hello,
     Count
 };
 
@@ -13,14 +13,14 @@ public:
     void send_request() override {
         ammo::common::message<PacketType> msg;
         ammo::entity::string<PacketType> name = "Test";
-        msg.header.id = Name;
+        msg.header.opcode = Hello;
         name.serialize(msg);
         ammo::common::owned_message<PacketType> omsg {server_endpoint_, msg};
         commit_send(omsg);
     }
 
     void on_message(ammo::network::connection<PacketType>& destination, ammo::common::message<PacketType>& msg) override {
-        switch (msg.header.id) {
+        switch (msg.header.opcode) {
             case PacketType::PacketFragment: {
                 break;
             }
@@ -38,7 +38,7 @@ public:
 
             }
             default: {
-                std::cout << "[WARN] Unknown packet type: " << msg.header.id << std::endl;
+                std::cout << "[WARN] Unknown packet type: " << msg.header.opcode << std::endl;
                 break;
             }
         }
@@ -46,17 +46,17 @@ public:
 
 protected:
     void on_authenticate_message(ammo::common::owned_message<PacketType>& msg) override {
-        switch (msg.message.header.id) {
+        switch (msg.message.header.opcode) {
             case PacketType::PacketFragment: {
                 break;
             }
-            case PacketType::Name: {
+            case PacketType::Hello: {
                 confirm_validation();
                 std::cout << "[INFO] Connected to server!" << std::endl;
                 break;
             }
             default: {
-                std::cout << "[WARN] Unknown packet type: " << msg.message.header.id << std::endl;
+                std::cout << "[WARN] Unknown packet type: " << msg.message.header.opcode << std::endl;
                 break;
             }
         }
@@ -69,7 +69,7 @@ protected:
 
 int main() {
     SimpleClient client;
-    if (client.connect("127.0.0.1", 50000))
+    if (client.connect("127.0.0.1", 20352))
         std::cout << "[INFO] Connecting to server..." << std::endl;
 
     while (true) {
@@ -77,14 +77,14 @@ int main() {
         if (a == 1) {
             for (int i = 0; i < 50; ++i) {
                 ammo::common::message<PacketType> msg;
-                msg.header.id = Count;
+                msg.header.opcode = Count;
                 msg << i;
                 msg.set_reliable(true);
                 client.send(client.get_server_connection(), msg);
             }
         } else if (a == 2) {
             ammo::common::message<PacketType> msg;
-            msg.header.id = Ping;
+            msg.header.opcode = Ping;
             auto now = std::chrono::system_clock::now().time_since_epoch().count();
             msg << now;
             msg.set_reliable(true);
