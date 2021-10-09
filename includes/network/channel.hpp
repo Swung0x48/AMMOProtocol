@@ -12,6 +12,10 @@ namespace ammo::network {
         explicit channel(event::event_handler& handler):
                 event_handler_(handler) {}
 
+        /** 
+          * @brief Submit a message to channel for send
+          * @param msg    The message to be sent
+          */
         void submit_for_send(ammo::common::message<T>& msg) {
             on_send(msg);
 
